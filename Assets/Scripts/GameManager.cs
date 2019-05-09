@@ -29,20 +29,7 @@ public class GameManager : MonoBehaviour
     public Player playerBlack;
     public Player currentPlayer;
 
-    private Checker selectedChecker;
-    public Checker SelectedChecker
-    {
-        get { return selectedChecker; }
-        set
-        {
-            if (selectedChecker != null)
-            {
-                selectedChecker.SetSelected(false);
-            }
-
-            selectedChecker = value;
-        }
-    }
+    public Checker selectedChecker;
 
     private void Awake()
     {

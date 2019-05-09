@@ -6,17 +6,19 @@ public class Cell : MonoBehaviour
 
     private void OnMouseUp()
     {
-        // ignore hitting empty cell when no checker selected
-        if (GameManager.Instance.SelectedChecker == null && checker == null)
-            return;
+        var selectedChecker = GameManager.Instance.selectedChecker;
 
-        // select or deselect checker
-        else if (checker != null && (GameManager.Instance.SelectedChecker == null || checker == GameManager.Instance.SelectedChecker))
+        if (selectedChecker == null)
         {
-            checker.TrySelect();
-        }
+            // ignore hitting empty cell when no checker selected
+            if (checker == null)
+                return;
 
-        else if (GameManager.Instance.SelectedChecker != null)
+            // select checker
+            if (checker != null)
+                checker.SetSelected(true);
+        }
+        else
         {
             // capture enemy
             if (checker != null)
@@ -24,8 +26,7 @@ public class Cell : MonoBehaviour
                 Destroy(checker.gameObject);
             }
             // move selected checker
-            checker = GameManager.Instance.SelectedChecker;
-            checker.SetCell(this);
+            selectedChecker.SetCell(this);
         }
     }
 }

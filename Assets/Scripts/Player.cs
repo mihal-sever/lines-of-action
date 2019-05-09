@@ -10,7 +10,6 @@ public class Player : MonoBehaviour
     {
         GameObject instance = Instantiate(checkerPrefab, transform);
         Checker checker = instance.GetComponent<Checker>();
-        checker.player = this;
         checker.SetCell(cell);
         checkers.Add(checker);
     }
