@@ -24,16 +24,18 @@ public class GameManager : MonoBehaviour
         }
     }
     #endregion
-
-    public Player playerWhite;
-    public Player playerBlack;
+    
     public Player currentPlayer;
+    public Player currentEnemy;
 
     public Checker selectedChecker;
+
+    private UIHandler uiHandler;
 
     private void Awake()
     {
         SetupSingelton();
+        uiHandler = FindObjectOfType<UIHandler>();
     }
 
     private void Start()
@@ -41,16 +43,84 @@ public class GameManager : MonoBehaviour
         Board.Instance.CreateBoard();
         InitializeCheckers();
     }
+    
+    public bool TrySelect(Checker checker)
+    {    
+        if (currentPlayer.IsOwnChecker(checker))
+        {
+            SelectChecker(checker);
+            return true;
+        }
+        return false;
+    }
+
+    public bool TryMove(Cell cell)
+    {
+        if (!CanMove(cell))
+            return false;
+
+        if (cell.checker != null)
+        {
+            CaptureChecker(cell.checker);
+        }
+        
+        MoveChecker(cell);
+        SwitchPlayer();
+        return true;
+    }
+
+    private void SelectChecker(Checker checker)
+    {
+        if (selectedChecker != null)
+        {
+            selectedChecker.SetSelected(false);
+            selectedChecker = null;
+        }
+
+        if (checker == null)
+            return;
+
+        selectedChecker = checker;
+        selectedChecker.SetSelected(true);
+    }
+
+    private void MoveChecker(Cell cell)
+    {
+        selectedChecker.Move(cell);
+        SelectChecker(null);
+    }
+
+    private void CaptureChecker(Checker checker)
+    {
+        currentEnemy.DestroyChecker(checker);
+    }
+
+    private bool CanMove(Cell cell)
+    {
+        if (selectedChecker == null)
+            return false;
+
+        return true;
+    }
+    
+    private void SwitchPlayer()
+    {
+        var player = currentPlayer;
+        currentPlayer = currentEnemy;
+        currentEnemy = player;
+
+        uiHandler.UpdateText(currentPlayer);
+    }
 
     private void InitializeCheckers()
     {
         for (int i = 1; i < Board.Instance.size - 1; i++)
         {
-            playerWhite.CreateChecker(Board.Instance.cells[0, i]);
-            playerWhite.CreateChecker(Board.Instance.cells[Board.Instance.size - 1, i]);
+            currentPlayer.CreateChecker(Board.Instance.cells[0, i]);
+            currentPlayer.CreateChecker(Board.Instance.cells[Board.Instance.size - 1, i]);
 
-            playerBlack.CreateChecker(Board.Instance.cells[i, 0]);
-            playerBlack.CreateChecker(Board.Instance.cells[i, Board.Instance.size - 1]);
+            currentEnemy.CreateChecker(Board.Instance.cells[i, 0]);
+            currentEnemy.CreateChecker(Board.Instance.cells[i, Board.Instance.size - 1]);
         }
     }
    

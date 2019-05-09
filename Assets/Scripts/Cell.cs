@@ -6,27 +6,12 @@ public class Cell : MonoBehaviour
 
     private void OnMouseUp()
     {
-        var selectedChecker = GameManager.Instance.selectedChecker;
-
-        if (selectedChecker == null)
+        if (checker != null)
         {
-            // ignore hitting empty cell when no checker selected
-            if (checker == null)
+            if (GameManager.Instance.TrySelect(checker))
                 return;
+        }
 
-            // select checker
-            if (checker != null)
-                checker.SetSelected(true);
-        }
-        else
-        {
-            // capture enemy
-            if (checker != null)
-            {
-                Destroy(checker.gameObject);
-            }
-            // move selected checker
-            selectedChecker.SetCell(this);
-        }
+        GameManager.Instance.TryMove(this);
     }
 }
