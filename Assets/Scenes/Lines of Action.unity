@@ -151,7 +151,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   checkerPrefab: {fileID: 91886680564377584, guid: b0256d6e34ccd7d41ab1d9577652b19a,
     type: 3}
-  checkers: []
   playerName: WHITE
 --- !u!4 &350377928
 Transform:
@@ -573,13 +572,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
-  m_LocalRotation: {x: 0, y: 0.7071068, z: -0.7071068, w: 0}
+  m_LocalRotation: {x: 0.5, y: -0.5, z: 0.5, w: 0.5}
   m_LocalPosition: {x: 3.2, y: 9, z: 3.21}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 90, y: 180, z: 0}
+  m_LocalEulerAnglesHint: {x: 90, y: -90, z: 0}
 --- !u!1 &1241137628
 GameObject:
   m_ObjectHideFlags: 0
@@ -724,7 +723,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   checkerPrefab: {fileID: 4502224673614536232, guid: 52b9620dcb4955846ab9cb4522c952c0,
     type: 3}
-  checkers: []
   playerName: BLACK
 --- !u!4 &1803585007
 Transform:

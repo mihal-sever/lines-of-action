@@ -20,6 +20,11 @@ public class Checker : MonoBehaviour
         Position();
     }
 
+    public Cell GetCell()
+    {
+        return cell;
+    }
+
     public void SetSelected(bool isSelected)
     {
         if (isSelected)

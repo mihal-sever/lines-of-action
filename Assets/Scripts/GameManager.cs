@@ -100,7 +100,7 @@ public class GameManager : MonoBehaviour
         if (selectedChecker == null)
             return false;
 
-        return true;
+        return Board.Instance.CanMove(selectedChecker, cell);
     }
     
     private void SwitchPlayer()
