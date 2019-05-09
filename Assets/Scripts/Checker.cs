@@ -14,9 +14,12 @@ public class Checker : MonoBehaviour
         normalColor = GetComponent<Renderer>().material.color;
     }
 
-    public void SetCell(Cell cell)
+    public void SetCell(Cell _cell)
     {
-        this.cell = cell;
+        if (cell != null)
+            cell.checker = null;
+        cell = _cell;
+        cell.checker = this;
         PositionChecker();
         SetSelected(false);
     }
@@ -25,8 +28,8 @@ public class Checker : MonoBehaviour
     {
         transform.position = cell.transform.position + new Vector3(0, transform.localScale.y, 0);
     }
-
-    private void OnMouseUp()
+    
+    public void TrySelect()
     {
         if (!isSelected)
         {
@@ -37,13 +40,13 @@ public class Checker : MonoBehaviour
             SetSelected(false);
         }
     }
-    
-    public void SetSelected(bool isSelected)
+
+    public void SetSelected(bool _isSelected)
     {
-        if (this.isSelected == isSelected)
+        if (isSelected == _isSelected)
            return;
 
-        this.isSelected = isSelected;
+        isSelected = _isSelected;
 
         if (isSelected)
         {

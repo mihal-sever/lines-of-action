@@ -35,9 +35,8 @@ public class GameManager : MonoBehaviour
         get { return selectedChecker; }
         set
         {
-            if (selectedChecker != null) //==value
+            if (selectedChecker != null)
             {
-                //Destroy(selectedChecker.gameObject);
                 selectedChecker.SetSelected(false);
             }
 
