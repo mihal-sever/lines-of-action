@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
@@ -24,7 +25,10 @@ public class GameManager : MonoBehaviour
         }
     }
     #endregion
-    
+
+    public event Action<Player> onPlayerChanged;
+    public event Action<Player> onWinner;
+
     public Player currentPlayer;
     public Player currentEnemy;
 
@@ -42,6 +46,7 @@ public class GameManager : MonoBehaviour
     {
         Board.Instance.CreateBoard();
         InitializeCheckers();
+        Rules.Initialize();
     }
     
     public bool TrySelect(Checker checker)
@@ -65,6 +70,8 @@ public class GameManager : MonoBehaviour
         }
         
         MoveChecker(cell);
+        if (Rules.IsWin(currentPlayer))
+            onWinner(currentPlayer);
         SwitchPlayer();
         return true;
     }
@@ -109,7 +116,7 @@ public class GameManager : MonoBehaviour
         currentPlayer = currentEnemy;
         currentEnemy = player;
 
-        uiHandler.UpdateText(currentPlayer);
+        onPlayerChanged(currentPlayer);
     }
 
     private void InitializeCheckers()

@@ -2,7 +2,7 @@
 
 public class Cell : MonoBehaviour
 {
-    public Checker checker;
+    internal Checker checker;
 
     private void OnMouseUp()
     {

@@ -5,10 +5,24 @@ using UnityEngine.UI;
 public class UIHandler : MonoBehaviour
 {
     public Text currentPlayerText;
+    public GameObject winnerPanel;
+    public Text winnerText;
 
-    public void UpdateText(Player player)
+    private void Start()
+    {
+        GameManager.Instance.onPlayerChanged += UpdateCurrentPlayerText;
+        GameManager.Instance.onWinner += OnWinner;
+    }
+
+    public void UpdateCurrentPlayerText(Player player)
     {
         currentPlayerText.text = player.playerName;
+    }
+
+    public void OnWinner(Player player)
+    {
+        winnerPanel.SetActive(true);
+        winnerText.text = player.playerName + " WON";
     }
 
     public void ReloadLevel()

@@ -1,15 +1,54 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public static class Rules
 {
     private static Cell[,] cells;
     private static int size;
 
-    public static bool CanMove(Checker checker, Cell targetCell)
+    public static void Initialize()
     {
         cells = Board.Instance.cells;
         size = Board.Instance.size;
+    } 
 
+    public static bool IsWin(Player player)
+    {
+        if (player.checkers.Count == 1)
+            return true;
+
+        List<Checker> linkedCheckers = new List<Checker>();
+        
+        FindLinkedCheckers(player.checkers[0], linkedCheckers, player.checkers);
+        
+        if (linkedCheckers.Count == player.checkers.Count)
+            return true;
+        
+        return false;
+    }
+
+    private static void FindLinkedCheckers(Checker checker, List<Checker> linkedCheckers, List<Checker> checkers)
+    {
+        linkedCheckers.Add(checker);
+
+        Vector2Int pos = GetCellPosition(checker.GetCell());
+
+        foreach (Checker c in checkers)
+        {
+            if (linkedCheckers.Contains(c))
+                continue;
+
+            Vector2Int posToCheck = GetCellPosition(c.GetCell());
+            if ((pos.x == posToCheck.x || pos.x == posToCheck.x + 1 || pos.x == posToCheck.x - 1) &&
+                (pos.y == posToCheck.y || pos.y == posToCheck.y + 1 || pos.y == posToCheck.y - 1))
+            {
+                FindLinkedCheckers(c, linkedCheckers, checkers);
+            }
+        }
+    }
+    
+    public static bool CanMove(Checker checker, Cell targetCell)
+    {
         Vector2Int cellPos = GetCellPosition(checker.GetCell());
         Vector2Int targetCellPos = GetCellPosition(targetCell);
 
@@ -42,7 +81,7 @@ public static class Rules
         {
             Cell cell = isHorizontal ? cells[cellPos.x, i] : cells[i, cellPos.y];
 
-            if (CellOccupiedByEnemy(cell))
+            if (CellOccupiedBy(cell, GameManager.Instance.currentEnemy))
                 return false;
         }
         
@@ -76,7 +115,7 @@ public static class Rules
                 cellToCheck = isMainDiagonal ? cells[cellPos.x - delta, cellPos.y - delta] : cells[cellPos.x - delta, cellPos.y + delta];
             }
 
-            if (CellOccupiedByEnemy(cellToCheck))
+            if (CellOccupiedBy(cellToCheck, GameManager.Instance.currentEnemy))
                 return false;
         }
 
@@ -110,34 +149,34 @@ public static class Rules
 
         for (int delta = 1; delta < size; delta++)
         {
-            Cell cell = null;
             if (isMainDiagonal)
             {
                 if (x + delta < size && y + delta < size)
                 {
-                    cell = cells[x + delta, y + delta];
+                    if (CellOccupied(cells[x + delta, y + delta]))
+                        checkersOnLine++;
                 }
 
                 if (x - delta >= 0 && y - delta >= 0)
                 {
-                    cell = cells[x - delta, y - delta];
+                    if (CellOccupied(cells[x - delta, y - delta]))
+                        checkersOnLine++;
                 }
             }
             else
             {
                 if (x + delta < size && y - delta >= 0)
                 {
-                    cell = cells[x + delta, y - delta];
+                    if (CellOccupied(cells[x + delta, y - delta]))
+                        checkersOnLine++;
                 }
 
                 if (x - delta >= 0 && y + delta < size)
                 {
-                    cell = cells[x - delta, y + delta];
+                    if (CellOccupied(cells[x - delta, y + delta]))
+                        checkersOnLine++;
                 }
             }
-
-            if (CellOccupied(cell))
-                checkersOnLine++;
         }
 
         return checkersOnLine;
@@ -148,9 +187,9 @@ public static class Rules
         return cell?.checker != null;
     }
 
-    private static bool CellOccupiedByEnemy(Cell cell)
+    private static bool CellOccupiedBy(Cell cell, Player player)
     {
-        return cell?.checker?.GetComponentInParent<Player>() == GameManager.Instance.currentEnemy;
+        return cell?.checker?.GetComponentInParent<Player>() == player;
     }
 
     private static bool CellsOnDiagonalLine(Vector2Int pos, Vector2Int targetPos)
