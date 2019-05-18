@@ -28,17 +28,26 @@ public class Board : MonoBehaviour
     public GameObject whiteCellPrefab;
     public GameObject blackCellPrefab;
 
-    public int size = 8;
-
     internal Cell[,] cells;
+
+    private int size;
 
     private void Awake()
     {
         SetupSingelton();
     }
 
-    public void CreateBoard()
+    public int GetSize()
     {
+        return size;
+    }
+    public Cell[,] GetCells()
+    { return cells; }
+
+    public void CreateBoard(int boardSize)
+    {
+        size = boardSize;
+
         cells = new Cell[size, size];
 
         for (int i = 0; i < size; i++)

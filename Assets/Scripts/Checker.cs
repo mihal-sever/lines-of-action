@@ -10,11 +10,11 @@ public class Checker : MonoBehaviour
         normalColor = GetComponent<Renderer>().material.color;
     }
 
-    public void Move(Cell _cell)
+    public void Move(Cell newCell)
     {
         if (cell != null)
             cell.checker = null;
-        cell = _cell;
+        cell = newCell;
         cell.checker = this;
 
         Position();

@@ -1,33 +1,65 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public static class Rules
+public class LinesOfActionRules : MonoBehaviour, IRules
 {
-    private static Cell[,] cells;
-    private static int size;
+    private Cell[,] cells;
+    private int boardSize;
 
-    public static void Initialize()
+    public void Initialize(int boardSize, Cell[,] cells, IOpeningPosition openingPosition)
     {
-        cells = Board.Instance.cells;
-        size = Board.Instance.size;
-    } 
+        this.cells = cells;
+        this.boardSize = boardSize;
+        InitializeCheckers(openingPosition);
+    }
+    
+    public bool CanMove(Checker checker, Cell targetCell)
+    {
+        Vector2Int cellPos = GetCellPosition(checker.GetCell());
+        Vector2Int targetCellPos = GetCellPosition(targetCell);
 
-    public static bool IsWin(Player player)
+        if (CanMoveStraight(cellPos, targetCellPos) || CanMoveDiagonally(cellPos, targetCellPos))
+            return true;
+
+        return false;
+    }
+
+    public bool CanCaptureChecker(Cell cell)
+    {
+        return cell.checker != null;
+    }
+
+    public bool IsWin(Player player)
     {
         if (player.checkers.Count == 1)
             return true;
 
         List<Checker> linkedCheckers = new List<Checker>();
-        
+
         FindLinkedCheckers(player.checkers[0], linkedCheckers, player.checkers);
-        
+
         if (linkedCheckers.Count == player.checkers.Count)
             return true;
-        
+
         return false;
     }
 
-    private static void FindLinkedCheckers(Checker checker, List<Checker> linkedCheckers, List<Checker> checkers)
+    private void InitializeCheckers(IOpeningPosition openingPosition)
+    {
+        List<Vector2Int> playerPositions = openingPosition.GetPlayerPositions(boardSize);
+        foreach (Vector2Int v in playerPositions)
+        {
+            GameManager.Instance.currentPlayer.CreateChecker(cells[v.x, v.y]);
+        }
+
+        List<Vector2Int> enemyPositions = openingPosition.GetEnemyPositions(boardSize);
+        foreach (Vector2Int v in enemyPositions)
+        {
+            GameManager.Instance.currentEnemy.CreateChecker(cells[v.x, v.y]);
+        }
+    }
+
+    private void FindLinkedCheckers(Checker checker, List<Checker> linkedCheckers, List<Checker> checkers)
     {
         linkedCheckers.Add(checker);
 
@@ -46,28 +78,17 @@ public static class Rules
             }
         }
     }
-    
-    public static bool CanMove(Checker checker, Cell targetCell)
-    {
-        Vector2Int cellPos = GetCellPosition(checker.GetCell());
-        Vector2Int targetCellPos = GetCellPosition(targetCell);
 
-        if (CanMoveStraight(cellPos, targetCellPos) || CanMoveDiagonally(cellPos, targetCellPos))
-            return true;
-
-        return false;
-    }
-
-    private static bool CanMoveStraight(Vector2Int cellPos, Vector2Int targetCellPos)
+    private bool CanMoveStraight(Vector2Int cellPos, Vector2Int targetCellPos)
     {
         bool isHorizontal = cellPos.x == targetCellPos.x;
         bool isVertical = cellPos.y == targetCellPos.y;
 
         if (!isHorizontal && !isVertical)
             return false;
-        
+
         // check if there is an enemy on the way to target
-        int indexFrom =  isHorizontal ? cellPos.y + 1 : cellPos.x + 1;
+        int indexFrom = isHorizontal ? cellPos.y + 1 : cellPos.x + 1;
         int indexTo = isHorizontal ? targetCellPos.y : targetCellPos.x;
 
         if (cellPos.y > targetCellPos.y)
@@ -84,17 +105,17 @@ public static class Rules
             if (CellOccupiedBy(cell, GameManager.Instance.currentEnemy))
                 return false;
         }
-        
+
         int checkersOnLine = CountCheckersOnStraightLine(isHorizontal, cellPos);
         int stepLength = isHorizontal ? Mathf.Abs(targetCellPos.y - cellPos.y) : Mathf.Abs(targetCellPos.x - cellPos.x);
 
         if (stepLength != checkersOnLine)
             return false;
-        
+
         return true;
     }
 
-    private static bool CanMoveDiagonally(Vector2Int cellPos, Vector2Int targetCellPos)
+    private bool CanMoveDiagonally(Vector2Int cellPos, Vector2Int targetCellPos)
     {
         if (!CellsOnDiagonalLine(cellPos, targetCellPos))
             return false;
@@ -102,7 +123,7 @@ public static class Rules
         bool isMainDiagonal = ((targetCellPos.x - cellPos.x) * (targetCellPos.y - cellPos.y) > 0) ? true : false;
 
         // check if there is an enemy on the way to target
-        for (int delta = 1; delta < size; delta++)
+        for (int delta = 1; delta < boardSize; delta++)
         {
             Cell cellToCheck = null;
 
@@ -128,10 +149,10 @@ public static class Rules
         return true;
     }
 
-    private static int CountCheckersOnStraightLine(bool isHorizontal, Vector2Int cellPos)
+    private int CountCheckersOnStraightLine(bool isHorizontal, Vector2Int cellPos)
     {
         int checkersOnLine = 0;
-        for (int i = 0; i < size; i++)
+        for (int i = 0; i < boardSize; i++)
         {
             Cell cell = isHorizontal ? cells[cellPos.x, i] : cells[i, cellPos.y];
 
@@ -141,17 +162,17 @@ public static class Rules
         return checkersOnLine;
     }
 
-    private static int CountCheckersOnDiagonalLine(bool isMainDiagonal, Vector2Int cellPos)
+    private int CountCheckersOnDiagonalLine(bool isMainDiagonal, Vector2Int cellPos)
     {
         int checkersOnLine = 1;
         int x = cellPos.x;
         int y = cellPos.y;
 
-        for (int delta = 1; delta < size; delta++)
+        for (int delta = 1; delta < boardSize; delta++)
         {
             if (isMainDiagonal)
             {
-                if (x + delta < size && y + delta < size)
+                if (x + delta < boardSize && y + delta < boardSize)
                 {
                     if (CellOccupied(cells[x + delta, y + delta]))
                         checkersOnLine++;
@@ -165,13 +186,13 @@ public static class Rules
             }
             else
             {
-                if (x + delta < size && y - delta >= 0)
+                if (x + delta < boardSize && y - delta >= 0)
                 {
                     if (CellOccupied(cells[x + delta, y - delta]))
                         checkersOnLine++;
                 }
 
-                if (x - delta >= 0 && y + delta < size)
+                if (x - delta >= 0 && y + delta < boardSize)
                 {
                     if (CellOccupied(cells[x - delta, y + delta]))
                         checkersOnLine++;
@@ -182,19 +203,19 @@ public static class Rules
         return checkersOnLine;
     }
 
-    private static bool CellOccupied(Cell cell)
+    private bool CellOccupied(Cell cell)
     {
         return cell?.checker != null;
     }
 
-    private static bool CellOccupiedBy(Cell cell, Player player)
+    private bool CellOccupiedBy(Cell cell, Player player)
     {
         return cell?.checker?.GetComponentInParent<Player>() == player;
     }
 
-    private static bool CellsOnDiagonalLine(Vector2Int pos, Vector2Int targetPos)
+    private bool CellsOnDiagonalLine(Vector2Int pos, Vector2Int targetPos)
     {
-        for (int delta = 1; delta < size; delta++)
+        for (int delta = 1; delta < boardSize; delta++)
         {
             if (pos.x + delta == targetPos.x || pos.x - delta == targetPos.x)
             {
@@ -207,21 +228,18 @@ public static class Rules
         return false;
     }
 
-    private static Vector2Int GetCellPosition(Cell cell)
+    private Vector2Int GetCellPosition(Cell cell)
     {
-        Vector2Int position = new Vector2Int();
-
-        for (int i = 0; i < size; i++)
+        for (int i = 0; i < boardSize; i++)
         {
-            for (int j = 0; j < size; j++)
+            for (int j = 0; j < boardSize; j++)
             {
                 if (cells[i, j] == cell)
                 {
-                    position = new Vector2Int(i, j);
+                    return new Vector2Int(i, j);
                 }
             }
         }
-        return position;
+        throw new UnityException("Cell not found.");
     }
-
 }

@@ -29,24 +29,27 @@ public class GameManager : MonoBehaviour
     public event Action<Player> onPlayerChanged;
     public event Action<Player> onWinner;
 
+    public int boardSize = 8;
+
     public Player currentPlayer;
     public Player currentEnemy;
 
-    public Checker selectedChecker;
-
-    private UIHandler uiHandler;
+    internal Checker selectedChecker;
+    
+    private IOpeningPosition openingPosition;
+    private IRules rules;
 
     private void Awake()
     {
         SetupSingelton();
-        uiHandler = FindObjectOfType<UIHandler>();
+        openingPosition = new ScrambledEggsOpeningPosition();
+        rules = new LinesOfActionRules();
     }
 
     private void Start()
     {
-        Board.Instance.CreateBoard();
-        InitializeCheckers();
-        Rules.Initialize();
+        Board.Instance.CreateBoard(boardSize);
+        rules.Initialize(Board.Instance.GetSize(), Board.Instance.cells, openingPosition);
     }
     
     public bool TrySelect(Checker checker)
@@ -63,15 +66,15 @@ public class GameManager : MonoBehaviour
     {
         if (!CanMove(cell))
             return false;
-
-        if (cell.checker != null)
-        {
+        
+        if (rules.CanCaptureChecker(cell))
             CaptureChecker(cell.checker);
-        }
         
         MoveChecker(cell);
-        if (Rules.IsWin(currentPlayer))
+
+        if (rules.IsWin(currentPlayer))
             onWinner(currentPlayer);
+
         SwitchPlayer();
         return true;
     }
@@ -107,7 +110,7 @@ public class GameManager : MonoBehaviour
         if (selectedChecker == null)
             return false;
 
-        return Rules.CanMove(selectedChecker, cell);
+        return rules.CanMove(selectedChecker, cell);
     }
     
     private void SwitchPlayer()
@@ -118,17 +121,4 @@ public class GameManager : MonoBehaviour
 
         onPlayerChanged(currentPlayer);
     }
-
-    private void InitializeCheckers()
-    {
-        for (int i = 1; i < Board.Instance.size - 1; i++)
-        {
-            currentPlayer.CreateChecker(Board.Instance.cells[0, i]);
-            currentPlayer.CreateChecker(Board.Instance.cells[Board.Instance.size - 1, i]);
-
-            currentEnemy.CreateChecker(Board.Instance.cells[i, 0]);
-            currentEnemy.CreateChecker(Board.Instance.cells[i, Board.Instance.size - 1]);
-        }
-    }
-   
 }

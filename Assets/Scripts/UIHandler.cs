@@ -10,11 +10,11 @@ public class UIHandler : MonoBehaviour
 
     private void Start()
     {
-        GameManager.Instance.onPlayerChanged += UpdateCurrentPlayerText;
+        GameManager.Instance.onPlayerChanged += OnPlayerChanged;
         GameManager.Instance.onWinner += OnWinner;
     }
 
-    public void UpdateCurrentPlayerText(Player player)
+    public void OnPlayerChanged(Player player)
     {
         currentPlayerText.text = player.playerName;
     }
