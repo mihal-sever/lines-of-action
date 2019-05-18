@@ -28,7 +28,7 @@ public class GameManager : MonoBehaviour
 
     public event Action<Player> onPlayerChanged;
     public event Action<Player> onWinner;
-
+    
     public int boardSize = 8;
 
     public Player currentPlayer;
@@ -38,12 +38,15 @@ public class GameManager : MonoBehaviour
     
     private IOpeningPosition openingPosition;
     private IRules rules;
+    private AudioSource audio;
+    private bool soundsOn;
 
     private void Awake()
     {
         SetupSingelton();
-        openingPosition = new ScrambledEggsOpeningPosition();
-        rules = new LinesOfActionRules();
+        SetupGame();
+
+        audio = GetComponent<AudioSource>();
     }
 
     private void Start()
@@ -71,6 +74,8 @@ public class GameManager : MonoBehaviour
             CaptureChecker(cell.checker);
         
         MoveChecker(cell);
+        if (soundsOn)
+            audio.Play();
 
         if (rules.IsWin(currentPlayer))
             onWinner(currentPlayer);
@@ -120,5 +125,31 @@ public class GameManager : MonoBehaviour
         currentEnemy = player;
 
         onPlayerChanged(currentPlayer);
+    }
+
+    private void SetupGame()
+    {
+        if (PlayerPrefs.GetString("soundsOn") == "True")
+            soundsOn = true;
+        else
+            soundsOn = false;
+
+        if (PlayerPrefs.GetInt("boardSize") == 0)
+            boardSize = 8;
+        else if (PlayerPrefs.GetInt("boardSize") == 1)
+            boardSize = 10;
+
+        if (PlayerPrefs.GetInt("game") == 0)
+        {
+            rules = new LinesOfActionRules();
+            if (PlayerPrefs.GetInt("openingPosition") == 0)
+                openingPosition = new LinesOfActionOpeningPosition();
+            else if (PlayerPrefs.GetInt("openingPosition") == 1)
+                openingPosition = new ScrambledEggsOpeningPosition();
+        }
+        else if (PlayerPrefs.GetInt("game") == 1)
+        {
+            //ugolki game
+        }
     }
 }
