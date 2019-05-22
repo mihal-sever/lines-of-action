@@ -45,7 +45,8 @@ public class GameManager : MonoBehaviour
     {
         SetupSingelton();
         SetupGame();
-
+        openingPosition = new UgolkiClassicOpeningPosition();
+        rules = new UgolkiRules();
         audio = GetComponent<AudioSource>();
     }
 
@@ -150,6 +151,10 @@ public class GameManager : MonoBehaviour
         else if (PlayerPrefs.GetInt("game") == 1)
         {
             //ugolki game
+            if (PlayerPrefs.GetInt("openingPosition") == 0)
+                openingPosition = new UgolkiClassicOpeningPosition();
+            else if (PlayerPrefs.GetInt("openingPosition") == 1)
+                openingPosition = new UgolkiDiagonalOpeningPosition();
         }
     }
 }

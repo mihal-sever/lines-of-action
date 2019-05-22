@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public class LinesOfActionRules : MonoBehaviour, IRules
+public class LinesOfActionRules : IRules
 {
     private Cell[,] cells;
     private int boardSize;

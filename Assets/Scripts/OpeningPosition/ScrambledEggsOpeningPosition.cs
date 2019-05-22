@@ -3,30 +3,6 @@ using UnityEngine;
 
 public class ScrambledEggsOpeningPosition : MonoBehaviour, IOpeningPosition
 {
-    public void InitializeCheckers(Player currentPlayer, Player currentEnemy)
-    {
-        int boardSize = Board.Instance.GetSize();
-        for (int i = 1; i < boardSize - 1; i++)
-        {
-            if (i % 2 == 1)
-            {
-                currentPlayer.CreateChecker(Board.Instance.cells[0, i]);
-                currentPlayer.CreateChecker(Board.Instance.cells[i, boardSize - 1]);
-
-                currentEnemy.CreateChecker(Board.Instance.cells[i, 0]);
-                currentEnemy.CreateChecker(Board.Instance.cells[boardSize - 1, i]);
-            }
-            else
-            {
-                currentPlayer.CreateChecker(Board.Instance.cells[i, 0]);
-                currentPlayer.CreateChecker(Board.Instance.cells[boardSize - 1, i]);
-
-                currentEnemy.CreateChecker(Board.Instance.cells[0, i]);
-                currentEnemy.CreateChecker(Board.Instance.cells[i, boardSize - 1]);
-            }
-        }
-    }
-
     public List<Vector2Int> GetPlayerPositions(int boardSize)
     {
         List<Vector2Int> whitePositions = new List<Vector2Int>();

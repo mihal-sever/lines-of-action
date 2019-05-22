@@ -7,6 +7,7 @@ public class Player : MonoBehaviour
     public string playerName;
 
     internal List<Checker> checkers = new List<Checker>();
+    internal List<Cell> targetCells;
 
     public void CreateChecker(Cell cell)
     {
