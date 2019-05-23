@@ -18,76 +18,86 @@ public class UgolkiRules : IRules
         if (targetCell.checker != null)
             return false;
 
-        Vector2Int cellPos = GetCellPosition(checker.GetCell());
-        Vector2Int targetCellPos = GetCellPosition(targetCell);
-        
-        bool b = FindPath(cellPos, targetCellPos);
+        Vector2Int from = GetCellPosition(checker.GetCell());
+        Vector2Int to = GetCellPosition(targetCell);
 
-        return IsSimpleStep(cellPos, targetCellPos);
+        if(IsShortStep(from, to))
+        {
+            return CanMakeShortStep(from, to);
+        }
+        else
+        {
+            List<Vector2Int> traversedCells = new List<Vector2Int>();
+            return FindPath(from, to, traversedCells);
+        }
     }
 
+    private bool IsShortStep(Vector2Int from, Vector2Int to)
+    {
+        int stepSize = (int)(from - to).magnitude;
+        return stepSize == 1;
+    }
 
-    private bool IsSimpleStep(Vector2Int from, Vector2Int to)
+    private bool CanMakeShortStep(Vector2Int from, Vector2Int to)
     {
         List<Vector2Int> neighborCells = GetNeighborCells(from);
 
         foreach (Vector2Int v in neighborCells)
         {
-            // if cell is vacant
             if (!CellOccupied(cells[v.x, v.y]))
             {
-                //return true if this is the target cell
                 if (v == to)
                     return true;
             }
         }
         return false;
     }
-
-    private bool FindPath(Vector2Int from, Vector2Int to)
+    
+    private bool FindPath(Vector2Int from, Vector2Int to, List<Vector2Int> traversedCells)
     {
-        Debug.Log("find path from " + from + " to " + to);
+        traversedCells.Add(from);
         List<Vector2Int> neighborCells = GetNeighborCells(from);
-        
-        // for each neighbor cell
-        foreach (Vector2Int v in neighborCells)
+
+        foreach (Vector2Int neighbor in neighborCells)
         {
             Vector2Int? nextCell;
-            if (CanJumpOverNeighborCell(v, from, out nextCell))
+            if (CanJumpOverNeighborCell(neighbor, from, traversedCells, out nextCell))
             {
-                Debug.Log("can jump over " + v);
-
-                // check if cell is target cell
                 if (nextCell.Value == to)
                 {
                     return true;
                 }
                 else
                 {
-                    return FindPath(nextCell.Value, to);
+                    var result = FindPath(nextCell.Value, to, traversedCells);
+                    if (result)
+                        return result;
                 }
             }
-
         }
-
         return false;
     }
-
-    private bool CanJumpOverNeighborCell(Vector2Int neighbor, Vector2Int from, out Vector2Int? nextCell)
+    
+    private bool CanJumpOverNeighborCell(Vector2Int neighbor, Vector2Int from, List<Vector2Int> traversedCells, out Vector2Int? nextCell)
     {
+        nextCell = null;
+        
+        // if neighbor is vacant
+        if (!CellOccupied(cells[neighbor.x, neighbor.y]))
+            return false;
 
-        // take next cell on that line
+        // if there is no next cell
         nextCell = GetNextCellOnLine(from, neighbor);
         if (!nextCell.HasValue)
-        {
             return false;
-        }
-        
+
         // if next cell is occupied
         if (CellOccupied(cells[nextCell.Value.x, nextCell.Value.y]))
-        {
             return false;
-        }
+
+        // if next cell is traversed
+        if (traversedCells.Contains(nextCell.Value))
+            return false;        
         
         return true;
     }

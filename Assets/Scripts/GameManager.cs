@@ -45,8 +45,6 @@ public class GameManager : MonoBehaviour
     {
         SetupSingelton();
         SetupGame();
-        openingPosition = new UgolkiClassicOpeningPosition();
-        rules = new UgolkiRules();
         audio = GetComponent<AudioSource>();
     }
 
@@ -130,10 +128,7 @@ public class GameManager : MonoBehaviour
 
     private void SetupGame()
     {
-        if (PlayerPrefs.GetString("soundsOn") == "True")
-            soundsOn = true;
-        else
-            soundsOn = false;
+        bool.TryParse(PlayerPrefs.GetString("soundsOn"), out soundsOn);
 
         if (PlayerPrefs.GetInt("boardSize") == 0)
             boardSize = 8;
@@ -150,7 +145,7 @@ public class GameManager : MonoBehaviour
         }
         else if (PlayerPrefs.GetInt("game") == 1)
         {
-            //ugolki game
+            rules = new UgolkiRules();
             if (PlayerPrefs.GetInt("openingPosition") == 0)
                 openingPosition = new UgolkiClassicOpeningPosition();
             else if (PlayerPrefs.GetInt("openingPosition") == 1)
