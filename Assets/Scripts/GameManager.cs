@@ -29,22 +29,25 @@ public class GameManager : MonoBehaviour
     public event Action<Player> onPlayerChanged;
     public event Action<Player> onWinner;
     
-    public int boardSize = 8;
-
     public Player currentPlayer;
     public Player currentEnemy;
 
     internal Checker selectedChecker;
-    
-    private IOpeningPosition openingPosition;
+
     private IRules rules;
-    private AudioSource audio;
+    private IOpeningPosition openingPosition;
+    private int boardSize;
     private bool soundsOn;
+
+    private AudioSource audio;
+    private GameConfigContainer config;
 
     private void Awake()
     {
-        SetupSingelton();
+        config = FindObjectOfType<GameConfigContainer>();
         SetupGame();
+
+        SetupSingelton();
         audio = GetComponent<AudioSource>();
     }
 
@@ -128,28 +131,9 @@ public class GameManager : MonoBehaviour
 
     private void SetupGame()
     {
-        bool.TryParse(PlayerPrefs.GetString("soundsOn"), out soundsOn);
-
-        if (PlayerPrefs.GetInt("boardSize") == 0)
-            boardSize = 8;
-        else if (PlayerPrefs.GetInt("boardSize") == 1)
-            boardSize = 10;
-
-        if (PlayerPrefs.GetInt("game") == 0)
-        {
-            rules = new LinesOfActionRules();
-            if (PlayerPrefs.GetInt("openingPosition") == 0)
-                openingPosition = new LinesOfActionOpeningPosition();
-            else if (PlayerPrefs.GetInt("openingPosition") == 1)
-                openingPosition = new ScrambledEggsOpeningPosition();
-        }
-        else if (PlayerPrefs.GetInt("game") == 1)
-        {
-            rules = new UgolkiRules();
-            if (PlayerPrefs.GetInt("openingPosition") == 0)
-                openingPosition = new UgolkiClassicOpeningPosition();
-            else if (PlayerPrefs.GetInt("openingPosition") == 1)
-                openingPosition = new UgolkiDiagonalOpeningPosition();
-        }
+        rules = config.rules;
+        openingPosition = config.openingPosition;
+        boardSize = config.boardSize;
+        soundsOn = config.soundOn;
     }
 }

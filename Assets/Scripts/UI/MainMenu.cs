@@ -7,43 +7,91 @@ public class MainMenu : MonoBehaviour
 {
     public Dropdown game;
     public Dropdown openingPosition;
-    public Dropdown boardSize;
+    //public Dropdown boardSize;
     public Toggle sounds;
     public Button playButton;
 
     private List<Dropdown.OptionData> openingPositionsForUgolki;
     private List<Dropdown.OptionData> openingPositionsForLines;
+    private GameConfigContainer config;
 
     private void Awake()
     {
+        config = FindObjectOfType<GameConfigContainer>();
+
         openingPositionsForUgolki = new List<Dropdown.OptionData>() { new Dropdown.OptionData("Classic"), new Dropdown.OptionData("Diagonal") };
         openingPositionsForLines = new List<Dropdown.OptionData>() { new Dropdown.OptionData("Classic"), new Dropdown.OptionData("Scrambled eggs") };
     }
 
     private void Start()
     {
-        game.onValueChanged.AddListener(delegate { GameChanged(game.value); });
+        game.onValueChanged.AddListener(delegate { OnGameChanged(game.value); });
+        openingPosition.onValueChanged.AddListener(delegate { OnOpeningPositionChanged(openingPosition.value); });
+        //boardSize.onValueChanged.AddListener(delegate { OnBoardSizeChanged(boardSize.value); });
+        sounds.onValueChanged.AddListener(delegate { OnSoundToggle(sounds.isOn); });
         playButton.onClick.AddListener(delegate { OnHitPlay(); });
+    }
 
-        game.value = PlayerPrefs.GetInt("game");
-        openingPosition.value = PlayerPrefs.GetInt("openingPosition");
-        boardSize.value = PlayerPrefs.GetInt("boardSize");
+    private void OnGameChanged(int index)
+    {
+        if (index == 0)
+        {
+            config.rules = new LinesOfActionRules();
+            openingPosition.options = openingPositionsForLines;
+        }
+        else if (index == 1)
+        {
+            config.rules = new UgolkiRules();
+            openingPosition.options = openingPositionsForUgolki;
+        }
+        OnOpeningPositionChanged(openingPosition.value);
+    }
+
+    private void OnOpeningPositionChanged(int index)
+    {
+        if (game.value == 0)
+        {
+            if (index == 0)
+            {
+                config.openingPosition = new LinesOfActionOpeningPosition();
+            }
+            else if (index == 1)
+            {
+                config.openingPosition = new ScrambledEggsOpeningPosition();
+            }
+        }
+        else if (game.value == 1)
+        {
+            if (index == 0)
+            {
+                config.openingPosition = new UgolkiClassicOpeningPosition();
+            }
+            else if (index == 1)
+            {
+                config.openingPosition = new UgolkiDiagonalOpeningPosition();
+            }
+        }
+    }
+
+    //private void OnBoardSizeChanged(int index)
+    //{
+    //    if (index == 0)
+    //    {
+    //        config.boardSize = 8;
+    //    }
+    //    else if (index == 1)
+    //    {
+    //        config.boardSize = 10;
+    //    }
+    //}
+
+    private void OnSoundToggle(bool isOn)
+    {
+        config.soundOn = isOn;
     }
 
     private void OnHitPlay()
     {
-        PlayerPrefs.SetInt("game", game.value);
-        PlayerPrefs.SetInt("openingPosition", openingPosition.value);
-        PlayerPrefs.SetInt("boardSize", boardSize.value);
-        PlayerPrefs.SetString("soundsOn", sounds.isOn.ToString());
-        SceneManager.LoadScene("Lines of Action");
-    }
-
-    private void GameChanged(int index)
-    {
-        if (index == 0)
-            openingPosition.options = openingPositionsForLines;
-        else if (index == 1)
-            openingPosition.options = openingPositionsForUgolki;
+        SceneManager.LoadScene(1);
     }
 }
