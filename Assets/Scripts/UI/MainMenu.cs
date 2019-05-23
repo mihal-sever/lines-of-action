@@ -16,10 +16,6 @@ public class MainMenu : MonoBehaviour
 
     private void Awake()
     {
-        game.value = PlayerPrefs.GetInt("game");
-        openingPosition.value = PlayerPrefs.GetInt("openingPosition");
-        boardSize.value = PlayerPrefs.GetInt("boardSize");
-
         openingPositionsForUgolki = new List<Dropdown.OptionData>() { new Dropdown.OptionData("Classic"), new Dropdown.OptionData("Diagonal") };
         openingPositionsForLines = new List<Dropdown.OptionData>() { new Dropdown.OptionData("Classic"), new Dropdown.OptionData("Scrambled eggs") };
     }
@@ -28,6 +24,10 @@ public class MainMenu : MonoBehaviour
     {
         game.onValueChanged.AddListener(delegate { GameChanged(game.value); });
         playButton.onClick.AddListener(delegate { OnHitPlay(); });
+
+        game.value = PlayerPrefs.GetInt("game");
+        openingPosition.value = PlayerPrefs.GetInt("openingPosition");
+        boardSize.value = PlayerPrefs.GetInt("boardSize");
     }
 
     private void OnHitPlay()
