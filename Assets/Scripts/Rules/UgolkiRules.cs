@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class UgolkiRules : RulesBase
 {
+    private Dictionary<Player, List<Cell>> playerTargetCells = new Dictionary<Player, List<Cell>>();
+
     public override bool CanMove(Checker checker, Cell targetCell)
     {
         if (targetCell.checker != null)
@@ -29,10 +31,12 @@ public class UgolkiRules : RulesBase
 
     public override bool IsWin(Player player)
     {
+        List<Cell> targetCells = playerTargetCells[player];
+
         foreach (Checker checker in player.checkers)
         {
             bool isCheckerOnPlace = false;
-            foreach (Cell cell in player.targetCells)
+            foreach (Cell cell in targetCells)
             {
                 if (checker.GetCell() == cell)
                 {
@@ -66,9 +70,9 @@ public class UgolkiRules : RulesBase
             targetPlayerCells.Add(cell);
             GameManager.Instance.currentEnemy.CreateChecker(cell);
         }
-
-        GameManager.Instance.currentPlayer.targetCells = targetPlayerCells;
-        GameManager.Instance.currentEnemy.targetCells = targetEnemyCells;
+        
+        playerTargetCells.Add(GameManager.Instance.currentPlayer, targetPlayerCells);
+        playerTargetCells.Add(GameManager.Instance.currentEnemy, targetEnemyCells);
     }
 
 

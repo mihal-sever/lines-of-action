@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public class LinesOfActionOpeningPosition : MonoBehaviour, IOpeningPosition
+public class LinesOfActionOpeningPosition : IOpeningPosition
 {
     public List<Vector2Int> GetPlayerPositions(int boardSize)
     {

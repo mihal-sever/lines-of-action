@@ -9,11 +9,15 @@ public class GameConfigContainer : MonoBehaviour
 
     private void Awake()
     {
+        InitializeDefaultValues();
+        DontDestroyOnLoad(this);
+    }
+
+    private void InitializeDefaultValues()
+    {
         rules = new LinesOfActionRules();
         openingPosition = new LinesOfActionOpeningPosition();
         boardSize = 8;
         soundOn = true;
-
-        DontDestroyOnLoad(this);
     }
 }

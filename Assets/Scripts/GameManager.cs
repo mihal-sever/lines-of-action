@@ -44,11 +44,11 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
-        config = FindObjectOfType<GameConfigContainer>();
-        SetupGame();
-
-        SetupSingelton();
         audio = GetComponent<AudioSource>();
+        config = FindObjectOfType<GameConfigContainer>();
+
+        SetupGame();
+        SetupSingelton();
     }
 
     private void Start()

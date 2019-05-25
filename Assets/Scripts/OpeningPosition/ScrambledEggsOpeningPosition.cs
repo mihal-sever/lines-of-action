@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public class ScrambledEggsOpeningPosition : MonoBehaviour, IOpeningPosition
+public class ScrambledEggsOpeningPosition : IOpeningPosition
 {
     public List<Vector2Int> GetPlayerPositions(int boardSize)
     {

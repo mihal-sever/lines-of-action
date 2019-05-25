@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public class UgolkiDiagonalOpeningPosition : MonoBehaviour, IOpeningPosition
+public class UgolkiDiagonalOpeningPosition : IOpeningPosition
 {
     public List<Vector2Int> GetPlayerPositions(int boardSize)
     {
