@@ -16,7 +16,7 @@ public class LinesOfActionRules : RulesBase
 
     public override bool CanCaptureChecker(Cell cell)
     {
-        return cell.checker != null;
+        return CellOccupied(cell);
     }
 
     public override bool IsWin(Player player)

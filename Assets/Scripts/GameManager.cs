@@ -4,24 +4,17 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     #region Singleton
-    private static GameManager instance;
-    public static GameManager Instance
-    {
-        get
-        {
-            return instance;
-        }
-    }
+    public static GameManager Instance { get; private set; }
 
     private void SetupSingelton()
     {
-        if (instance != null)
+        if (Instance != null)
         {
-            Debug.LogError("Multiple game managers exists: " + instance.name + " and now " + this.name);
+            Debug.LogError("Multiple game managers exists: " + Instance.name + " and now " + this.name);
         }
         else
         {
-            instance = this;
+            Instance = this;
         }
     }
     #endregion
@@ -54,7 +47,7 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         Board.Instance.CreateBoard(boardSize);
-        rules.Initialize(Board.Instance.GetSize(), Board.Instance.cells, openingPosition);
+        rules.Initialize(openingPosition);
     }
     
     public bool TrySelect(Checker checker)
@@ -71,9 +64,12 @@ public class GameManager : MonoBehaviour
     {
         if (!CanMove(cell))
             return false;
-        
+
         if (rules.CanCaptureChecker(cell))
-            CaptureChecker(cell.checker);
+        {
+            Checker checker = rules.GetCheckerOnCell(cell);
+            CaptureChecker(checker);
+        }
         
         MoveChecker(cell);
         if (soundsOn)

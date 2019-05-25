@@ -10,13 +10,15 @@ public class Checker : MonoBehaviour
         normalColor = GetComponent<Renderer>().material.color;
     }
 
+    private void OnMouseUp()
+    {
+        if (!GameManager.Instance.TrySelect(this))
+            GameManager.Instance.TryMove(cell);
+    }
+
     public void Move(Cell newCell)
     {
-        if (cell != null)
-            cell.checker = null;
         cell = newCell;
-        cell.checker = this;
-
         Position();
     }
 

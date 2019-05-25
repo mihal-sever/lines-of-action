@@ -3,24 +3,17 @@
 public class Board : MonoBehaviour
 {
     #region Singleton
-    private static Board instance;
-    
-    public static Board Instance
-    {
-        get
-        {
-            return instance;
-        }
-    }
+    public static Board Instance { get; private set; }
+
     private void SetupSingelton()
     {
-        if (instance != null)
+        if (Instance != null)
         {
-            Debug.LogError("Multiple boards exists: " + instance.name + " and now " + this.name);
+            Debug.LogError("Multiple boards exists: " + Instance.name + " and now " + name);
         }
         else
         {
-            instance = this;
+            Instance = this;
         }
     }
     #endregion
@@ -28,31 +21,22 @@ public class Board : MonoBehaviour
     public GameObject whiteCellPrefab;
     public GameObject blackCellPrefab;
 
-    internal Cell[,] cells;
-
-    private int size;
+    internal Cell[,] Cells { get; private set; }
+    internal int Size { get; private set; }
 
     private void Awake()
     {
         SetupSingelton();
     }
-
-    public int GetSize()
-    {
-        return size;
-    }
-    public Cell[,] GetCells()
-    { return cells; }
-
+    
     public void CreateBoard(int boardSize)
     {
-        size = boardSize;
+        Size = boardSize;
+        Cells = new Cell[Size, Size];
 
-        cells = new Cell[size, size];
-
-        for (int i = 0; i < size; i++)
+        for (int i = 0; i < Size; i++)
         {
-            for (int j = 0; j < size; j++)
+            for (int j = 0; j < Size; j++)
             {
                 Vector3 position = new Vector3(j, 0, i);
                 GameObject cellPrefab = blackCellPrefab;
@@ -60,7 +44,7 @@ public class Board : MonoBehaviour
                     cellPrefab = whiteCellPrefab;
 
                 GameObject cell = Instantiate(cellPrefab, position, Quaternion.identity, transform);
-                cells[j, i] = cell.GetComponent<Cell>();
+                Cells[j, i] = cell.GetComponent<Cell>();
             }
         }
     }

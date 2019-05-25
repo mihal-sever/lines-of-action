@@ -7,7 +7,7 @@ public class UgolkiRules : RulesBase
 
     public override bool CanMove(Checker checker, Cell targetCell)
     {
-        if (targetCell.checker != null)
+        if (CellOccupied(targetCell))
             return false;
 
         Vector2Int from = GetCellPosition(checker.GetCell());

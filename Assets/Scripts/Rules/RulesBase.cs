@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public abstract class RulesBase
 {
@@ -12,10 +10,10 @@ public abstract class RulesBase
     public abstract bool CanCaptureChecker(Cell cell);
     public abstract void InitializeCheckers(IOpeningPosition openingPosition);
 
-    internal void Initialize(int boardSize, Cell[,] cells, IOpeningPosition openingPosition)
+    internal void Initialize(IOpeningPosition openingPosition)
     {
-        this.cells = cells;
-        this.boardSize = boardSize;
+        cells = Board.Instance.Cells;
+        boardSize = Board.Instance.Size;
         InitializeCheckers(openingPosition);
     }
 
@@ -36,12 +34,32 @@ public abstract class RulesBase
 
     internal bool CellOccupied(Cell cell)
     {
-        return cell?.checker != null;
+        return CellOccupiedBy(cell, GameManager.Instance.currentPlayer) ||
+                CellOccupiedBy(cell, GameManager.Instance.currentEnemy);
     }
 
     internal bool CellOccupiedBy(Cell cell, Player player)
     {
-        return cell?.checker?.GetComponentInParent<Player>() == player;
+        foreach (Checker checker in player.checkers)
+        {
+            if (checker.GetCell() == cell)
+                return true;
+        }
+        return false;
     }
 
+    internal Checker GetCheckerOnCell(Cell cell)
+    {
+        foreach (Checker checker in GameManager.Instance.currentEnemy.checkers)
+        {
+            if (checker.GetCell() == cell)
+                return checker;
+        }
+        foreach (Checker checker in GameManager.Instance.currentPlayer.checkers)
+        {
+            if (checker.GetCell() == cell)
+                return checker;
+        }
+        throw new UnityException("Cell not found.");
+    }
 }
