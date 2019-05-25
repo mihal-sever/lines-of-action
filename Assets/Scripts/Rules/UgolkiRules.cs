@@ -1,19 +1,9 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public class UgolkiRules : IRules
+public class UgolkiRules : RulesBase
 {
-    private Cell[,] cells;
-    private int boardSize;
-
-    public void Initialize(int boardSize, Cell[,] cells, IOpeningPosition openingPosition)
-    {
-        this.cells = cells;
-        this.boardSize = boardSize;
-        InitializeCheckers(openingPosition);
-    }
-
-    public bool CanMove(Checker checker, Cell targetCell)
+    public override bool CanMove(Checker checker, Cell targetCell)
     {
         if (targetCell.checker != null)
             return false;
@@ -31,6 +21,56 @@ public class UgolkiRules : IRules
             return FindPath(from, to, traversedCells);
         }
     }
+    
+    public override bool CanCaptureChecker(Cell cell)
+    {
+        return false;
+    }
+
+    public override bool IsWin(Player player)
+    {
+        foreach (Checker checker in player.checkers)
+        {
+            bool isCheckerOnPlace = false;
+            foreach (Cell cell in player.targetCells)
+            {
+                if (checker.GetCell() == cell)
+                {
+                    isCheckerOnPlace = true;
+                    break;
+                }
+            }
+            if (!isCheckerOnPlace)
+                return false;
+        }
+
+        return true;
+    }
+
+    public override void InitializeCheckers(IOpeningPosition openingPosition)
+    {
+        List<Vector2Int> playerPositions = openingPosition.GetPlayerPositions(boardSize);
+        List<Cell> targetEnemyCells = new List<Cell>();
+        foreach (Vector2Int v in playerPositions)
+        {
+            Cell cell = cells[v.x, v.y];
+            targetEnemyCells.Add(cell);
+            GameManager.Instance.currentPlayer.CreateChecker(cell);
+        }
+
+        List<Vector2Int> enemyPositions = openingPosition.GetEnemyPositions(boardSize);
+        List<Cell> targetPlayerCells = new List<Cell>();
+        foreach (Vector2Int v in enemyPositions)
+        {
+            Cell cell = cells[v.x, v.y];
+            targetPlayerCells.Add(cell);
+            GameManager.Instance.currentEnemy.CreateChecker(cell);
+        }
+
+        GameManager.Instance.currentPlayer.targetCells = targetPlayerCells;
+        GameManager.Instance.currentEnemy.targetCells = targetEnemyCells;
+    }
+
 
     private bool IsShortStep(Vector2Int from, Vector2Int to)
     {
@@ -150,75 +190,6 @@ public class UgolkiRules : IRules
             neighborCells.Add(new Vector2Int(cell.x - 1, cell.y));
 
         return neighborCells;
-    }
-
-    public bool CanCaptureChecker(Cell cell)
-    {
-        return false;
-    }
-
-    public bool IsWin(Player player)
-    {
-        foreach (Checker checker in player.checkers)
-        {
-            bool isCheckerOnPlace = false;
-            foreach (Cell cell in player.targetCells)
-            {
-                if (checker.GetCell() == cell)
-                {
-                    isCheckerOnPlace = true;
-                    break;
-                }
-            }
-            if (!isCheckerOnPlace)
-                return false;
-        }
-
-        return true;
-    }
-
-    private void InitializeCheckers(IOpeningPosition openingPosition)
-    {
-        List<Vector2Int> playerPositions = openingPosition.GetPlayerPositions(boardSize);
-        List<Cell> targetEnemyCells = new List<Cell>();
-        foreach (Vector2Int v in playerPositions)
-        {
-            Cell cell = cells[v.x, v.y];
-            targetEnemyCells.Add(cell);
-            GameManager.Instance.currentPlayer.CreateChecker(cell);
-        }
-
-        List<Vector2Int> enemyPositions = openingPosition.GetEnemyPositions(boardSize);
-        List<Cell> targetPlayerCells = new List<Cell>();
-        foreach (Vector2Int v in enemyPositions)
-        {
-            Cell cell = cells[v.x, v.y];
-            targetPlayerCells.Add(cell);
-            GameManager.Instance.currentEnemy.CreateChecker(cell);
-        }
-
-        GameManager.Instance.currentPlayer.targetCells = targetPlayerCells;
-        GameManager.Instance.currentEnemy.targetCells = targetEnemyCells;
-    }
-
-    private Vector2Int GetCellPosition(Cell cell)
-    {
-        for (int i = 0; i < boardSize; i++)
-        {
-            for (int j = 0; j < boardSize; j++)
-            {
-                if (cells[i, j] == cell)
-                {
-                    return new Vector2Int(i, j);
-                }
-            }
-        }
-        throw new UnityException("Cell not found.");
-    }
-    
-    private bool CellOccupied(Cell cell)
-    {
-        return cell?.checker != null;
     }
 
 }

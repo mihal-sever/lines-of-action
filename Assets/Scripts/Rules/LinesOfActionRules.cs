@@ -1,19 +1,9 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public class LinesOfActionRules : IRules
+public class LinesOfActionRules : RulesBase
 {
-    private Cell[,] cells;
-    private int boardSize;
-
-    public void Initialize(int boardSize, Cell[,] cells, IOpeningPosition openingPosition)
-    {
-        this.cells = cells;
-        this.boardSize = boardSize;
-        InitializeCheckers(openingPosition);
-    }
-    
-    public bool CanMove(Checker checker, Cell targetCell)
+    public override bool CanMove(Checker checker, Cell targetCell)
     {
         Vector2Int cellPos = GetCellPosition(checker.GetCell());
         Vector2Int targetCellPos = GetCellPosition(targetCell);
@@ -24,12 +14,12 @@ public class LinesOfActionRules : IRules
         return false;
     }
 
-    public bool CanCaptureChecker(Cell cell)
+    public override bool CanCaptureChecker(Cell cell)
     {
         return cell.checker != null;
     }
 
-    public bool IsWin(Player player)
+    public override bool IsWin(Player player)
     {
         if (player.checkers.Count == 1)
             return true;
@@ -44,7 +34,7 @@ public class LinesOfActionRules : IRules
         return false;
     }
 
-    private void InitializeCheckers(IOpeningPosition openingPosition)
+    public override void InitializeCheckers(IOpeningPosition openingPosition)
     {
         List<Vector2Int> playerPositions = openingPosition.GetPlayerPositions(boardSize);
         foreach (Vector2Int v in playerPositions)
@@ -58,6 +48,7 @@ public class LinesOfActionRules : IRules
             GameManager.Instance.currentEnemy.CreateChecker(cells[v.x, v.y]);
         }
     }
+
 
     private void FindLinkedCheckers(Checker checker, List<Checker> linkedCheckers, List<Checker> checkers)
     {
@@ -202,17 +193,7 @@ public class LinesOfActionRules : IRules
 
         return checkersOnLine;
     }
-
-    private bool CellOccupied(Cell cell)
-    {
-        return cell?.checker != null;
-    }
-
-    private bool CellOccupiedBy(Cell cell, Player player)
-    {
-        return cell?.checker?.GetComponentInParent<Player>() == player;
-    }
-
+    
     private bool CellsOnDiagonalLine(Vector2Int pos, Vector2Int targetPos)
     {
         for (int delta = 1; delta < boardSize; delta++)
@@ -226,20 +207,5 @@ public class LinesOfActionRules : IRules
             }
         }
         return false;
-    }
-
-    private Vector2Int GetCellPosition(Cell cell)
-    {
-        for (int i = 0; i < boardSize; i++)
-        {
-            for (int j = 0; j < boardSize; j++)
-            {
-                if (cells[i, j] == cell)
-                {
-                    return new Vector2Int(i, j);
-                }
-            }
-        }
-        throw new UnityException("Cell not found.");
     }
 }

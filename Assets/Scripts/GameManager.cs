@@ -34,7 +34,7 @@ public class GameManager : MonoBehaviour
 
     internal Checker selectedChecker;
 
-    private IRules rules;
+    private RulesBase rules;
     private IOpeningPosition openingPosition;
     private int boardSize;
     private bool soundsOn;

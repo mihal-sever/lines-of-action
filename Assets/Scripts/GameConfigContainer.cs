@@ -2,7 +2,7 @@
 
 public class GameConfigContainer : MonoBehaviour
 {
-    internal IRules rules;
+    internal RulesBase rules;
     internal IOpeningPosition openingPosition;
     internal int boardSize;
     internal bool soundOn;
