@@ -10,10 +10,10 @@ public abstract class RulesBase
     public abstract bool CanCaptureChecker(Cell cell);
     public abstract void InitializeCheckers(IOpeningPosition openingPosition);
 
-    internal void Initialize(IOpeningPosition openingPosition)
+    internal void Initialize(IOpeningPosition openingPosition, Board board)
     {
-        cells = Board.Instance.Cells;
-        boardSize = Board.Instance.Size;
+        cells = board.Cells;
+        boardSize = board.Size;
         InitializeCheckers(openingPosition);
     }
 

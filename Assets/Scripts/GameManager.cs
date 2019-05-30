@@ -27,6 +27,8 @@ public class GameManager : MonoBehaviour
 
     internal Checker selectedChecker;
 
+    private Board board;
+
     private RulesBase rules;
     private IOpeningPosition openingPosition;
     private int boardSize;
@@ -39,15 +41,16 @@ public class GameManager : MonoBehaviour
     {
         audio = GetComponent<AudioSource>();
         config = FindObjectOfType<GameConfigContainer>();
-
+        board = FindObjectOfType<Board>();
+        
         SetupGame();
         SetupSingelton();
     }
 
     private void Start()
     {
-        Board.Instance.CreateBoard(boardSize);
-        rules.Initialize(openingPosition);
+        board.CreateBoard(boardSize);        
+        rules.Initialize(openingPosition, board);
     }
     
     public bool TrySelect(Checker checker)

@@ -22,7 +22,7 @@ public class UIHandler : MonoBehaviour
     public void OnWinner(Player player)
     {
         winnerPanel.SetActive(true);
-        winnerText.text = player.playerName + " WON";
+        winnerText.text = player.name + " WON";
     }
 
     public void ReloadLevel()
