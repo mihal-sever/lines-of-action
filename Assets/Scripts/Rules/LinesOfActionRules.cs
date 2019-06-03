@@ -3,12 +3,12 @@ using UnityEngine;
 
 public class LinesOfActionRules : RulesBase
 {
-    public override bool CanMove(Checker checker, Cell targetCell)
+    public override bool CanMove(Cell fromCell, Cell toCell)
     {
-        Vector2Int cellPos = GetCellPosition(checker.GetCell());
-        Vector2Int targetCellPos = GetCellPosition(targetCell);
+        Vector2Int from = fromCell.position;
+        Vector2Int to = toCell.position;
 
-        if (CanMoveStraight(cellPos, targetCellPos) || CanMoveDiagonally(cellPos, targetCellPos))
+        if (CanMoveStraight(from, to) || CanMoveDiagonally(from, to))
             return true;
 
         return false;
@@ -33,35 +33,19 @@ public class LinesOfActionRules : RulesBase
 
         return false;
     }
-
-    public override void InitializeCheckers(IOpeningPosition openingPosition)
-    {
-        List<Vector2Int> playerPositions = openingPosition.GetPlayerPositions(boardSize);
-        foreach (Vector2Int v in playerPositions)
-        {
-            GameManager.Instance.currentPlayer.CreateChecker(cells[v.x, v.y]);
-        }
-
-        List<Vector2Int> enemyPositions = openingPosition.GetEnemyPositions(boardSize);
-        foreach (Vector2Int v in enemyPositions)
-        {
-            GameManager.Instance.currentEnemy.CreateChecker(cells[v.x, v.y]);
-        }
-    }
-
-
+    
     private void FindLinkedCheckers(Checker checker, List<Checker> linkedCheckers, List<Checker> checkers)
     {
         linkedCheckers.Add(checker);
 
-        Vector2Int pos = GetCellPosition(checker.GetCell());
+        Vector2Int pos = checker.GetPosition();
 
         foreach (Checker c in checkers)
         {
             if (linkedCheckers.Contains(c))
                 continue;
 
-            Vector2Int posToCheck = GetCellPosition(c.GetCell());
+            Vector2Int posToCheck = c.GetPosition();
             if ((pos.x == posToCheck.x || pos.x == posToCheck.x + 1 || pos.x == posToCheck.x - 1) &&
                 (pos.y == posToCheck.y || pos.y == posToCheck.y + 1 || pos.y == posToCheck.y - 1))
             {

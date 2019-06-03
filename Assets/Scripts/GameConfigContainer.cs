@@ -3,7 +3,7 @@
 public class GameConfigContainer : MonoBehaviour
 {
     internal RulesBase rules;
-    internal IOpeningPosition openingPosition;
+    internal OpeningPosition openingPosition;
     internal int boardSize;
     internal bool soundOn;
 

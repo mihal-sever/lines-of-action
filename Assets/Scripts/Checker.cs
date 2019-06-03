@@ -27,6 +27,11 @@ public class Checker : MonoBehaviour
         return cell;
     }
 
+    public Vector2Int GetPosition()
+    {
+        return cell.position;
+    }
+
     public void SetSelected(bool isSelected)
     {
         if (isSelected)

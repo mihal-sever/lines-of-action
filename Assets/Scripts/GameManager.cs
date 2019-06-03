@@ -30,7 +30,7 @@ public class GameManager : MonoBehaviour
     private Board board;
 
     private RulesBase rules;
-    private IOpeningPosition openingPosition;
+    private OpeningPosition openingPosition;
     private int boardSize;
     private bool soundsOn;
 
@@ -49,8 +49,10 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        board.CreateBoard(boardSize);        
-        rules.Initialize(openingPosition, board);
+        board.CreateBoard(boardSize);
+        currentPlayer.SpawnCheckers(openingPosition, board);
+        currentEnemy.SpawnCheckers(openingPosition, board);
+        rules.Initialize(board);
     }
     
     public bool TrySelect(Checker checker)
@@ -116,7 +118,7 @@ public class GameManager : MonoBehaviour
         if (selectedChecker == null)
             return false;
 
-        return rules.CanMove(selectedChecker, cell);
+        return rules.CanMove(selectedChecker.GetCell(), cell);
     }
     
     private void SwitchPlayer()
@@ -130,9 +132,10 @@ public class GameManager : MonoBehaviour
 
     private void SetupGame()
     {
+        soundsOn = config.soundOn;
+        boardSize = config.boardSize;
         rules = config.rules;
         openingPosition = config.openingPosition;
-        boardSize = config.boardSize;
-        soundsOn = config.soundOn;
+        openingPosition.SetBoardSize(boardSize);
     }
 }

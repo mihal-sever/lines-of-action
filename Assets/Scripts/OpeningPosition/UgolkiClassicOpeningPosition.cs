@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public class UgolkiClassicOpeningPosition : IOpeningPosition
+public class UgolkiClassicOpeningPosition : OpeningPosition
 {
-    public List<Vector2Int> GetPlayerPositions(int boardSize)
+    protected override List<Vector2Int> GetWhitePositions()
     {
         List<Vector2Int> whitePositions = new List<Vector2Int>();
 
@@ -17,7 +17,7 @@ public class UgolkiClassicOpeningPosition : IOpeningPosition
         return whitePositions;
     }
 
-    public List<Vector2Int> GetEnemyPositions(int boardSize)
+    protected override List<Vector2Int> GetBlackPositions()
     {
         List<Vector2Int> blackPositions = new List<Vector2Int>();
 

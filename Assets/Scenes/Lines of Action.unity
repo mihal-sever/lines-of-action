@@ -363,6 +363,7 @@ MonoBehaviour:
   checkerPrefab: {fileID: 91886680564377584, guid: b0256d6e34ccd7d41ab1d9577652b19a,
     type: 3}
   playerName: WHITE
+  type: 0
 --- !u!4 &350377928
 Transform:
   m_ObjectHideFlags: 0
@@ -611,7 +612,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c517b723e7ef90b48aeae913f347a215, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  boardSize: 8
   currentPlayer: {fileID: 350377927}
   currentEnemy: {fileID: 1803585006}
 --- !u!4 &824428589
@@ -1366,6 +1366,7 @@ MonoBehaviour:
   checkerPrefab: {fileID: 4502224673614536232, guid: 52b9620dcb4955846ab9cb4522c952c0,
     type: 3}
   playerName: BLACK
+  type: 1
 --- !u!4 &1803585007
 Transform:
   m_ObjectHideFlags: 0

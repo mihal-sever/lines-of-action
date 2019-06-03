@@ -23,14 +23,16 @@ public class Board : MonoBehaviour
             for (int y = 0; y < Size; y++)
             {
                 GameObject cellPrefab = GetCellPrefab(x, y);
+                Vector3 position = new Vector3(x, 0, y);
 
-                Vector3 position = new Vector3(y, 0, x);
                 GameObject cell = Instantiate(cellPrefab, position, Quaternion.identity, transform);
-                Cells[y, x] = cell.GetComponent<Cell>();
+
+                Cells[x, y] = cell.GetComponent<Cell>();
+                Cells[x, y].position = new Vector2Int(x, y);
             }
         }
     }
-
+    
     private GameObject GetCellPrefab(int x, int y)
     {
         if ((x + y) % 2 == 0)

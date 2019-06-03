@@ -3,17 +3,28 @@ using UnityEngine;
 
 public class UgolkiRules : RulesBase
 {
-    private Dictionary<Player, List<Cell>> playerTargetCells = new Dictionary<Player, List<Cell>>();
+    private Dictionary<PlayerType, List<Vector2Int>> winningPositions = new Dictionary<PlayerType, List<Vector2Int>>();
 
-    public override bool CanMove(Checker checker, Cell targetCell)
+    public override void Initialize(Board board)
     {
-        if (CellOccupied(targetCell))
+        base.Initialize(board);
+                
+        Player white = GameManager.Instance.currentPlayer;
+        Player black = GameManager.Instance.currentEnemy;
+
+        winningPositions.Add(PlayerType.White, black.startPositions);
+        winningPositions.Add(PlayerType.Black, white.startPositions);
+    }
+
+    public override bool CanMove(Cell fromCell, Cell toCell)
+    {
+        if (CellOccupied(toCell))
             return false;
 
-        Vector2Int from = GetCellPosition(checker.GetCell());
-        Vector2Int to = GetCellPosition(targetCell);
+        Vector2Int from = fromCell.position;
+        Vector2Int to = toCell.position;
 
-        if(IsShortStep(from, to))
+        if (IsShortStep(from, to))
         {
             return CanMakeShortStep(from, to);
         }
@@ -31,14 +42,14 @@ public class UgolkiRules : RulesBase
 
     public override bool IsWin(Player player)
     {
-        List<Cell> targetCells = playerTargetCells[player];
+        List<Vector2Int> positions = winningPositions[player.type];
 
         foreach (Checker checker in player.checkers)
         {
             bool isCheckerOnPlace = false;
-            foreach (Cell cell in targetCells)
+            foreach (Vector2Int v in positions)
             {
-                if (checker.GetCell() == cell)
+                if (checker.GetPosition() == v)
                 {
                     isCheckerOnPlace = true;
                     break;
@@ -50,31 +61,6 @@ public class UgolkiRules : RulesBase
 
         return true;
     }
-
-    public override void InitializeCheckers(IOpeningPosition openingPosition)
-    {
-        List<Vector2Int> playerPositions = openingPosition.GetPlayerPositions(boardSize);
-        List<Cell> targetEnemyCells = new List<Cell>();
-        foreach (Vector2Int v in playerPositions)
-        {
-            Cell cell = cells[v.x, v.y];
-            targetEnemyCells.Add(cell);
-            GameManager.Instance.currentPlayer.CreateChecker(cell);
-        }
-
-        List<Vector2Int> enemyPositions = openingPosition.GetEnemyPositions(boardSize);
-        List<Cell> targetPlayerCells = new List<Cell>();
-        foreach (Vector2Int v in enemyPositions)
-        {
-            Cell cell = cells[v.x, v.y];
-            targetPlayerCells.Add(cell);
-            GameManager.Instance.currentEnemy.CreateChecker(cell);
-        }
-        
-        playerTargetCells.Add(GameManager.Instance.currentPlayer, targetPlayerCells);
-        playerTargetCells.Add(GameManager.Instance.currentEnemy, targetEnemyCells);
-    }
-
 
     private bool IsShortStep(Vector2Int from, Vector2Int to)
     {

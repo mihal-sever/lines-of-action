@@ -1,12 +1,34 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
+public enum PlayerType
+{
+    White,
+    Black
+}
+
 public class Player : MonoBehaviour
 {
     public GameObject checkerPrefab;
     public string playerName;
+    public PlayerType type;
 
-    internal List<Checker> checkers = new List<Checker>();
+    internal List<Checker> checkers;
+    internal List<Vector2Int> startPositions;
+
+    private void Awake()
+    {
+        checkers = new List<Checker>();
+    }
+
+    public void SpawnCheckers(OpeningPosition openingPosition, Board board)
+    {
+        startPositions = openingPosition.GetOpeningPosition(type);
+        foreach (Vector2Int v in startPositions)
+        {
+            CreateChecker(board.Cells[v.x, v.y]);
+        }
+    }
 
     public void CreateChecker(Cell cell)
     {
