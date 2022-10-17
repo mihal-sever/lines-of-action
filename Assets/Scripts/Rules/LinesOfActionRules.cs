@@ -1,195 +1,198 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public class LinesOfActionRules : RulesBase
+namespace Sever.BoardGames
 {
-    public override bool CanMove(Cell fromCell, Cell toCell)
+    public class LinesOfActionRules : RulesBase
     {
-        Vector2Int from = fromCell.position;
-        Vector2Int to = toCell.position;
-
-        if (CanMoveStraight(from, to) || CanMoveDiagonally(from, to))
-            return true;
-
-        return false;
-    }
-
-    public override bool CanCaptureChecker(Cell cell)
-    {
-        return CellOccupied(cell);
-    }
-
-    public override bool IsWin(Player player)
-    {
-        if (player.checkers.Count == 1)
-            return true;
-
-        List<Checker> linkedCheckers = new List<Checker>();
-
-        FindLinkedCheckers(player.checkers[0], linkedCheckers, player.checkers);
-
-        if (linkedCheckers.Count == player.checkers.Count)
-            return true;
-
-        return false;
-    }
-    
-    private void FindLinkedCheckers(Checker checker, List<Checker> linkedCheckers, List<Checker> checkers)
-    {
-        linkedCheckers.Add(checker);
-
-        Vector2Int pos = checker.GetPosition();
-
-        foreach (Checker c in checkers)
+        public override bool CanMove(Cell fromCell, Cell toCell)
         {
-            if (linkedCheckers.Contains(c))
-                continue;
+            Vector2Int from = fromCell.position;
+            Vector2Int to = toCell.position;
 
-            Vector2Int posToCheck = c.GetPosition();
-            if ((pos.x == posToCheck.x || pos.x == posToCheck.x + 1 || pos.x == posToCheck.x - 1) &&
-                (pos.y == posToCheck.y || pos.y == posToCheck.y + 1 || pos.y == posToCheck.y - 1))
+            if (CanMoveStraight(from, to) || CanMoveDiagonally(from, to))
+                return true;
+
+            return false;
+        }
+
+        public override bool CanCaptureChecker(Cell cell)
+        {
+            return CellOccupied(cell);
+        }
+
+        public override bool IsWin(Player player)
+        {
+            if (player.Checkers.Count == 1)
+                return true;
+
+            List<Checker> linkedCheckers = new List<Checker>();
+
+            FindLinkedCheckers(player.Checkers[0], linkedCheckers, player.Checkers);
+
+            if (linkedCheckers.Count == player.Checkers.Count)
+                return true;
+
+            return false;
+        }
+
+        private void FindLinkedCheckers(Checker checker, List<Checker> linkedCheckers, List<Checker> checkers)
+        {
+            linkedCheckers.Add(checker);
+
+            Vector2Int pos = checker.Position;
+
+            foreach (Checker c in checkers)
             {
-                FindLinkedCheckers(c, linkedCheckers, checkers);
+                if (linkedCheckers.Contains(c))
+                    continue;
+
+                Vector2Int posToCheck = c.Position;
+                if ((pos.x == posToCheck.x || pos.x == posToCheck.x + 1 || pos.x == posToCheck.x - 1) &&
+                    (pos.y == posToCheck.y || pos.y == posToCheck.y + 1 || pos.y == posToCheck.y - 1))
+                {
+                    FindLinkedCheckers(c, linkedCheckers, checkers);
+                }
             }
         }
-    }
 
-    private bool CanMoveStraight(Vector2Int cellPos, Vector2Int targetCellPos)
-    {
-        bool isHorizontal = cellPos.x == targetCellPos.x;
-        bool isVertical = cellPos.y == targetCellPos.y;
-
-        if (!isHorizontal && !isVertical)
-            return false;
-
-        // check if there is an enemy on the way to target
-        int indexFrom = isHorizontal ? cellPos.y + 1 : cellPos.x + 1;
-        int indexTo = isHorizontal ? targetCellPos.y : targetCellPos.x;
-
-        if (cellPos.y > targetCellPos.y)
+        private bool CanMoveStraight(Vector2Int cellPos, Vector2Int targetCellPos)
         {
-            var temp = indexFrom;
-            indexFrom = indexTo + 1;
-            indexTo = temp - 1;
-        }
+            bool isHorizontal = cellPos.x == targetCellPos.x;
+            bool isVertical = cellPos.y == targetCellPos.y;
 
-        for (int i = indexFrom; i < indexTo; i++)
-        {
-            Cell cell = isHorizontal ? cells[cellPos.x, i] : cells[i, cellPos.y];
-
-            if (CellOccupiedBy(cell, GameManager.Instance.currentEnemy))
+            if (!isHorizontal && !isVertical)
                 return false;
-        }
 
-        int checkersOnLine = CountCheckersOnStraightLine(isHorizontal, cellPos);
-        int stepLength = isHorizontal ? Mathf.Abs(targetCellPos.y - cellPos.y) : Mathf.Abs(targetCellPos.x - cellPos.x);
+            // check if there is an enemy on the way to target
+            int indexFrom = isHorizontal ? cellPos.y + 1 : cellPos.x + 1;
+            int indexTo = isHorizontal ? targetCellPos.y : targetCellPos.x;
 
-        if (stepLength != checkersOnLine)
-            return false;
-
-        return true;
-    }
-
-    private bool CanMoveDiagonally(Vector2Int cellPos, Vector2Int targetCellPos)
-    {
-        if (!CellsOnDiagonalLine(cellPos, targetCellPos))
-            return false;
-
-        bool isMainDiagonal = ((targetCellPos.x - cellPos.x) * (targetCellPos.y - cellPos.y) > 0) ? true : false;
-
-        // check if there is an enemy on the way to target
-        for (int delta = 1; delta < boardSize; delta++)
-        {
-            Cell cellToCheck = null;
-
-            if (cellPos.x + delta < targetCellPos.x)
+            if (cellPos.y > targetCellPos.y)
             {
-                cellToCheck = isMainDiagonal ? cells[cellPos.x + delta, cellPos.y + delta] : cells[cellPos.x + delta, cellPos.y - delta];
-            }
-            else if (cellPos.x - delta > targetCellPos.x)
-            {
-                cellToCheck = isMainDiagonal ? cells[cellPos.x - delta, cellPos.y - delta] : cells[cellPos.x - delta, cellPos.y + delta];
+                var temp = indexFrom;
+                indexFrom = indexTo + 1;
+                indexTo = temp - 1;
             }
 
-            if (CellOccupiedBy(cellToCheck, GameManager.Instance.currentEnemy))
+            for (int i = indexFrom; i < indexTo; i++)
+            {
+                Cell cell = isHorizontal ? cells[cellPos.x, i] : cells[i, cellPos.y];
+
+                if (CellOccupiedBy(cell, GameManager.Instance.CurrentEnemy))
+                    return false;
+            }
+
+            int checkersOnLine = CountCheckersOnStraightLine(isHorizontal, cellPos);
+            int stepLength = isHorizontal ? Mathf.Abs(targetCellPos.y - cellPos.y) : Mathf.Abs(targetCellPos.x - cellPos.x);
+
+            if (stepLength != checkersOnLine)
                 return false;
+
+            return true;
         }
 
-        int checkersOnLine = CountCheckersOnDiagonalLine(isMainDiagonal, cellPos);
-        int stepLength = Mathf.Abs(targetCellPos.x - cellPos.x);
-
-        if (stepLength != checkersOnLine)
-            return false;
-
-        return true;
-    }
-
-    private int CountCheckersOnStraightLine(bool isHorizontal, Vector2Int cellPos)
-    {
-        int checkersOnLine = 0;
-        for (int i = 0; i < boardSize; i++)
+        private bool CanMoveDiagonally(Vector2Int cellPos, Vector2Int targetCellPos)
         {
-            Cell cell = isHorizontal ? cells[cellPos.x, i] : cells[i, cellPos.y];
+            if (!CellsOnDiagonalLine(cellPos, targetCellPos))
+                return false;
 
-            if (CellOccupied(cell))
-                checkersOnLine++;
-        }
-        return checkersOnLine;
-    }
+            bool isMainDiagonal = ((targetCellPos.x - cellPos.x) * (targetCellPos.y - cellPos.y) > 0) ? true : false;
 
-    private int CountCheckersOnDiagonalLine(bool isMainDiagonal, Vector2Int cellPos)
-    {
-        int checkersOnLine = 1;
-        int x = cellPos.x;
-        int y = cellPos.y;
-
-        for (int delta = 1; delta < boardSize; delta++)
-        {
-            if (isMainDiagonal)
+            // check if there is an enemy on the way to target
+            for (int delta = 1; delta < boardSize; delta++)
             {
-                if (x + delta < boardSize && y + delta < boardSize)
+                Cell cellToCheck = null;
+
+                if (cellPos.x + delta < targetCellPos.x)
                 {
-                    if (CellOccupied(cells[x + delta, y + delta]))
-                        checkersOnLine++;
+                    cellToCheck = isMainDiagonal ? cells[cellPos.x + delta, cellPos.y + delta] : cells[cellPos.x + delta, cellPos.y - delta];
+                }
+                else if (cellPos.x - delta > targetCellPos.x)
+                {
+                    cellToCheck = isMainDiagonal ? cells[cellPos.x - delta, cellPos.y - delta] : cells[cellPos.x - delta, cellPos.y + delta];
                 }
 
-                if (x - delta >= 0 && y - delta >= 0)
+                if (CellOccupiedBy(cellToCheck, GameManager.Instance.CurrentEnemy))
+                    return false;
+            }
+
+            int checkersOnLine = CountCheckersOnDiagonalLine(isMainDiagonal, cellPos);
+            int stepLength = Mathf.Abs(targetCellPos.x - cellPos.x);
+
+            if (stepLength != checkersOnLine)
+                return false;
+
+            return true;
+        }
+
+        private int CountCheckersOnStraightLine(bool isHorizontal, Vector2Int cellPos)
+        {
+            int checkersOnLine = 0;
+            for (int i = 0; i < boardSize; i++)
+            {
+                Cell cell = isHorizontal ? cells[cellPos.x, i] : cells[i, cellPos.y];
+
+                if (CellOccupied(cell))
+                    checkersOnLine++;
+            }
+
+            return checkersOnLine;
+        }
+
+        private int CountCheckersOnDiagonalLine(bool isMainDiagonal, Vector2Int cellPos)
+        {
+            int checkersOnLine = 1;
+            int x = cellPos.x;
+            int y = cellPos.y;
+
+            for (int delta = 1; delta < boardSize; delta++)
+            {
+                if (isMainDiagonal)
                 {
-                    if (CellOccupied(cells[x - delta, y - delta]))
-                        checkersOnLine++;
+                    if (x + delta < boardSize && y + delta < boardSize)
+                    {
+                        if (CellOccupied(cells[x + delta, y + delta]))
+                            checkersOnLine++;
+                    }
+
+                    if (x - delta >= 0 && y - delta >= 0)
+                    {
+                        if (CellOccupied(cells[x - delta, y - delta]))
+                            checkersOnLine++;
+                    }
+                }
+                else
+                {
+                    if (x + delta < boardSize && y - delta >= 0)
+                    {
+                        if (CellOccupied(cells[x + delta, y - delta]))
+                            checkersOnLine++;
+                    }
+
+                    if (x - delta >= 0 && y + delta < boardSize)
+                    {
+                        if (CellOccupied(cells[x - delta, y + delta]))
+                            checkersOnLine++;
+                    }
                 }
             }
-            else
-            {
-                if (x + delta < boardSize && y - delta >= 0)
-                {
-                    if (CellOccupied(cells[x + delta, y - delta]))
-                        checkersOnLine++;
-                }
 
-                if (x - delta >= 0 && y + delta < boardSize)
-                {
-                    if (CellOccupied(cells[x - delta, y + delta]))
-                        checkersOnLine++;
-                }
-            }
+            return checkersOnLine;
         }
 
-        return checkersOnLine;
-    }
-    
-    private bool CellsOnDiagonalLine(Vector2Int pos, Vector2Int targetPos)
-    {
-        for (int delta = 1; delta < boardSize; delta++)
+        private bool CellsOnDiagonalLine(Vector2Int pos, Vector2Int targetPos)
         {
-            if (pos.x + delta == targetPos.x || pos.x - delta == targetPos.x)
+            for (int delta = 1; delta < boardSize; delta++)
             {
-                if (pos.y + delta == targetPos.y || pos.y - delta == targetPos.y)
+                if ((pos.x + delta == targetPos.x || pos.x - delta == targetPos.x) &&
+                    (pos.y + delta == targetPos.y || pos.y - delta == targetPos.y))
                 {
                     return true;
                 }
             }
+
+            return false;
         }
-        return false;
     }
 }

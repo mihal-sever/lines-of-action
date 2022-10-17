@@ -1,24 +1,23 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class OpeningPosition
+namespace Sever.BoardGames
 {
-    protected int boardSize;
-
-    public void SetBoardSize(int boardSize)
+    public abstract class OpeningPosition
     {
-        this.boardSize = boardSize;
+        protected int boardSize;
+
+        public void SetBoardSize(int boardSize)
+        {
+            this.boardSize = boardSize;
+        }
+
+        public List<Vector2Int> GetOpeningPosition(PlayerType playerType)
+        {
+            return playerType == PlayerType.White ? GetWhitePositions() : GetBlackPositions();
+        }
+
+        protected abstract List<Vector2Int> GetWhitePositions();
+        protected abstract List<Vector2Int> GetBlackPositions();
     }
-
-    public List<Vector2Int> GetOpeningPosition(PlayerType playerType)
-    {
-        if (playerType == PlayerType.White)
-            return GetWhitePositions();
-        else
-            return GetBlackPositions();
-
-    }
-
-    protected abstract List<Vector2Int> GetWhitePositions();
-    protected abstract List<Vector2Int> GetBlackPositions();
 }

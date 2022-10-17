@@ -1,33 +1,38 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public class UgolkiClassicOpeningPosition : OpeningPosition
+namespace Sever.BoardGames
 {
-    protected override List<Vector2Int> GetWhitePositions()
+    public class UgolkiClassicOpeningPosition : OpeningPosition
     {
-        List<Vector2Int> whitePositions = new List<Vector2Int>();
-
-        for (int i = 0; i < boardSize / 2 - 1; i++)
+        protected override List<Vector2Int> GetWhitePositions()
         {
-            for (int j = boardSize / 2; j < boardSize; j++)
+            List<Vector2Int> whitePositions = new List<Vector2Int>();
+
+            for (int i = 0; i < boardSize / 2 - 1; i++)
             {
-                whitePositions.Add(new Vector2Int(i, j));
+                for (int j = boardSize / 2; j < boardSize; j++)
+                {
+                    whitePositions.Add(new Vector2Int(i, j));
+                }
             }
+
+            return whitePositions;
         }
-        return whitePositions;
-    }
 
-    protected override List<Vector2Int> GetBlackPositions()
-    {
-        List<Vector2Int> blackPositions = new List<Vector2Int>();
-
-        for (int i = boardSize / 2 + 1; i < boardSize; i++)
+        protected override List<Vector2Int> GetBlackPositions()
         {
-            for (int j = 0; j < boardSize / 2; j++)
+            List<Vector2Int> blackPositions = new List<Vector2Int>();
+
+            for (int i = boardSize / 2 + 1; i < boardSize; i++)
             {
-                blackPositions.Add(new Vector2Int(i, j));
+                for (int j = 0; j < boardSize / 2; j++)
+                {
+                    blackPositions.Add(new Vector2Int(i, j));
+                }
             }
-        }   
-        return blackPositions;
+
+            return blackPositions;
+        }
     }
 }

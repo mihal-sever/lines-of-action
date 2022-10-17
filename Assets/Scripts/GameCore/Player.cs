@@ -1,52 +1,56 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public enum PlayerType
+namespace Sever.BoardGames
 {
-    White,
-    Black
-}
-
-public class Player : MonoBehaviour
-{
-    public GameObject checkerPrefab;
-    public string playerName;
-    public PlayerType type;
-
-    internal List<Checker> checkers;
-    internal List<Vector2Int> startPositions;
-
-    private void Awake()
+    public enum PlayerType
     {
-        checkers = new List<Checker>();
+        White,
+        Black
     }
 
-    public void SpawnCheckers(OpeningPosition openingPosition, Board board)
+    public class Player : MonoBehaviour
     {
-        startPositions = openingPosition.GetOpeningPosition(type);
-        foreach (Vector2Int v in startPositions)
+        [SerializeField] private GameObject _checkerPrefab;
+        [SerializeField] private PlayerType _type;
+
+        public PlayerType Type => _type;
+        public List<Checker> Checkers { get; } = new();
+        public List<Vector2Int> StartPositions { get; private set; }
+
+
+        public void SpawnCheckers(OpeningPosition openingPosition, Board board)
         {
-            CreateChecker(board.Cells[v.x, v.y]);
+            StartPositions = openingPosition.GetOpeningPosition(_type);
+            foreach (Vector2Int v in StartPositions)
+            {
+                CreateChecker(board.Cells[v.x, v.y]);
+            }
         }
-    }
 
-    public void CreateChecker(Cell cell)
-    {
-        GameObject instance = Instantiate(checkerPrefab, transform);
-        Checker checker = instance.GetComponent<Checker>();        
-        checker.Move(cell);
-        checkers.Add(checker);
-        checker.name = "checker " + checkers.Count;
-    }
+        private void CreateChecker(Cell cell)
+        {
+            GameObject instance = Instantiate(_checkerPrefab, transform);
+            Checker checker = instance.GetComponent<Checker>();
+            checker.Move(cell);
+            Checkers.Add(checker);
+            checker.name = "checker " + Checkers.Count;
+        }
 
-    public void DestroyChecker(Checker checker)
-    {
-        checkers.Remove(checker);
-        Destroy(checker.gameObject);
-    }
+        public void DestroyChecker(Checker checker)
+        {
+            Checkers.Remove(checker);
+            Destroy(checker.gameObject);
+        }
 
-    public bool IsOwnChecker(Checker checker)
-    {
-        return checkers.Contains(checker);
+        public bool OwnsChecker(Checker checker)
+        {
+            return Checkers.Contains(checker);
+        }
+
+        public override string ToString()
+        {
+            return Type.ToString();
+        }
     }
 }

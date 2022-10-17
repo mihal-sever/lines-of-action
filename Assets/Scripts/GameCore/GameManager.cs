@@ -1,139 +1,139 @@
 ﻿using System;
 using UnityEngine;
 
-public class GameManager : MonoBehaviour
+namespace Sever.BoardGames
 {
-    #region Singleton
-    public static GameManager Instance { get; private set; }
-
-    private void SetupSingelton()
+    public class GameManager : MonoBehaviour
     {
-        if (Instance != null)
-        {
-            Debug.LogError("Multiple game managers exists: " + Instance.name + " and now " + this.name);
-        }
-        else
-        {
-            Instance = this;
-        }
-    }
-    #endregion
+        private static GameManager _instance;
+        public static GameManager Instance => _instance ??= FindObjectOfType<GameManager>();
 
-    public event Action<Player> onPlayerChanged;
-    public event Action<Player> onWinner;
-    
-    public Player currentPlayer;
-    public Player currentEnemy;
+        public event Action<Player> PlayerChanged;
+        public event Action<Player> PlayerWon;
 
-    internal Checker selectedChecker;
-
-    private Board board;
-
-    private RulesBase rules;
-    private OpeningPosition openingPosition;
-    private int boardSize;
-    private bool soundsOn;
-
-    private AudioSource audio;
-
-    private void Awake()
-    {
-        audio = GetComponent<AudioSource>();
-        board = FindObjectOfType<Board>();
+        [SerializeField] private Player _whitePlayer;
+        [SerializeField] private Player _blackPlayer;
         
-        SetupGame();
-        SetupSingelton();
-    }
+        private Board _board;
+        private int _boardSize;
 
-    private void Start()
-    {
-        board.CreateBoard(boardSize);
-        currentPlayer.SpawnCheckers(openingPosition, board);
-        currentEnemy.SpawnCheckers(openingPosition, board);
-        rules.Initialize(board);
-    }
-    
-    public bool TrySelect(Checker checker)
-    {
-        if (currentPlayer.IsOwnChecker(checker))
+        private Checker _selectedChecker;
+
+        private RulesBase _rules;
+        private OpeningPosition _openingPosition;
+
+        private AudioSource _audioSource;
+        private bool _soundsOn;
+
+
+        public Player CurrentPlayer { get; private set; }
+        public Player CurrentEnemy { get; private set; }
+
+
+        private void Awake()
         {
+            _audioSource = GetComponent<AudioSource>();
+            _board = FindObjectOfType<Board>();
+
+            SetupGame();
+        }
+
+        private void Start()
+        {
+            _board.CreateBoard(_boardSize);
+            CurrentPlayer.SpawnCheckers(_openingPosition, _board);
+            CurrentEnemy.SpawnCheckers(_openingPosition, _board);
+            _rules.Initialize(_board);
+        }
+
+        public bool TrySelect(Checker checker)
+        {
+            if (!CurrentPlayer.OwnsChecker(checker))
+            {
+                return false;
+            }
+
             SelectChecker(checker);
             return true;
         }
-        return false;
-    }
 
-    public bool TryMove(Cell cell)
-    {
-        if (!CanMove(cell))
-            return false;
-
-        if (rules.CanCaptureChecker(cell))
+        public bool TryMove(Cell cell)
         {
-            Checker checker = rules.GetCheckerOnCell(cell);
-            CaptureChecker(checker);
-        }
-        
-        MoveChecker(cell);
-        if (soundsOn)
-            audio.Play();
+            if (!CanMove(cell))
+            {
+                return false;
+            }
 
-        if (rules.IsWin(currentPlayer))
-            onWinner(currentPlayer);
+            if (_rules.CanCaptureChecker(cell))
+            {
+                Checker checker = _rules.GetCheckerOnCell(cell);
+                CaptureChecker(checker);
+            }
 
-        SwitchPlayer();
-        return true;
-    }
+            MoveChecker(cell);
+            if (_soundsOn)
+            {
+                _audioSource.Play();
+            }
 
-    private void SelectChecker(Checker checker)
-    {
-        if (selectedChecker != null)
-        {
-            selectedChecker.SetSelected(false);
-            selectedChecker = null;
+            if (_rules.IsWin(CurrentPlayer))
+            {
+                PlayerWon?.Invoke(CurrentPlayer);
+            }
+
+            SwitchPlayer();
+            return true;
         }
 
-        if (checker == null)
-            return;
+        private void SelectChecker(Checker checker)
+        {
+            if (_selectedChecker != null)
+            {
+                _selectedChecker.SetSelected(false);
+                _selectedChecker = null;
+            }
 
-        selectedChecker = checker;
-        selectedChecker.SetSelected(true);
-    }
+            if (checker == null)
+            {
+                return;
+            }
 
-    private void MoveChecker(Cell cell)
-    {
-        selectedChecker.Move(cell);
-        SelectChecker(null);
-    }
+            _selectedChecker = checker;
+            _selectedChecker.SetSelected(true);
+        }
 
-    private void CaptureChecker(Checker checker)
-    {
-        currentEnemy.DestroyChecker(checker);
-    }
+        private void MoveChecker(Cell cell)
+        {
+            _selectedChecker.Move(cell);
+            SelectChecker(null);
+        }
 
-    private bool CanMove(Cell cell)
-    {
-        if (selectedChecker == null)
-            return false;
+        private void CaptureChecker(Checker checker)
+        {
+            CurrentEnemy.DestroyChecker(checker);
+        }
 
-        return rules.CanMove(selectedChecker.GetCell(), cell);
-    }
-    
-    private void SwitchPlayer()
-    {
-        var player = currentPlayer;
-        currentPlayer = currentEnemy;
-        currentEnemy = player;
+        private bool CanMove(Cell cell)
+        {
+            return _selectedChecker != null && _rules.CanMove(_selectedChecker.Cell, cell);
+        }
 
-        onPlayerChanged(currentPlayer);
-    }
+        private void SwitchPlayer()
+        {
+            (CurrentPlayer, CurrentEnemy) = (CurrentEnemy, CurrentPlayer);
+            PlayerChanged?.Invoke(CurrentPlayer);
+        }
 
-    private void SetupGame()
-    {
-        soundsOn = GameConfig.soundOn;
-        boardSize = GameConfig.boardSize;
-        rules = GameConfig.rules;
-        openingPosition = GameConfig.openingPosition;
-        openingPosition.SetBoardSize(boardSize);
+        private void SetupGame()
+        {
+            CurrentPlayer = _whitePlayer;
+            CurrentEnemy = _blackPlayer;
+            
+            _soundsOn = GameConfig.soundOn;
+            _boardSize = GameConfig.boardSize;
+            _rules = GameConfig.rules;
+            _openingPosition = GameConfig.openingPosition;
+            _openingPosition.SetBoardSize(_boardSize);
+        }
     }
 }

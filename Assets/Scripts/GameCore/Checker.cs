@@ -1,48 +1,46 @@
-﻿using UnityEngine;
+﻿using Sever.Utilities;
+using UnityEngine;
 
-public class Checker : MonoBehaviour
+namespace Sever.BoardGames
 {
-    private Cell cell;
-    private Color normalColor;
-
-    private void Awake()
+    public class Checker : MonoBehaviour
     {
-        normalColor = GetComponent<Renderer>().material.color;
-    }
+        private Cell _cell;
+        private Renderer _renderer;
 
-    private void OnMouseUp()
-    {
-        if (!GameManager.Instance.TrySelect(this))
-            GameManager.Instance.TryMove(cell);
-    }
+        private Color _defaultColor;
+        private Color _selectedColor = Color.red;
 
-    public void Move(Cell newCell)
-    {
-        cell = newCell;
-        Position();
-    }
+        public Cell Cell => _cell;
 
-    public Cell GetCell()
-    {
-        return cell;
-    }
+        public Vector2Int Position => _cell.position;
 
-    public Vector2Int GetPosition()
-    {
-        return cell.position;
-    }
 
-    public void SetSelected(bool isSelected)
-    {
-        if (isSelected)
-            GetComponent<Renderer>().material.color = Color.red;
-        else
-            GetComponent<Renderer>().material.color = normalColor;
-    }
+        private void Awake()
+        {
+            _renderer = GetComponent<Renderer>();
+            _defaultColor = _renderer.material.color;
+        }
 
-    private void Position()
-    {
-        transform.position = cell.transform.position + new Vector3(0, transform.localScale.y, 0);
-    }
+        private void OnMouseUp()
+        {
+            if (GameManager.Instance.TrySelect(this))
+            {
+                return;
+            }
 
+            GameManager.Instance.TryMove(_cell);
+        }
+
+        public void Move(Cell newCell)
+        {
+            _cell = newCell;
+            transform.position = _cell.transform.position + new Vector3(0, transform.localScale.y, 0);
+        }
+
+        public void SetSelected(bool isSelected)
+        {
+            _renderer.SetColor(isSelected ? _selectedColor : _defaultColor);
+        }
+    }
 }

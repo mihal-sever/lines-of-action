@@ -2,36 +2,45 @@
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class UIHandler : MonoBehaviour
+namespace Sever.BoardGames.UI
 {
-    public Text currentPlayerText;
-    public GameObject winnerPanel;
-    public Text winnerText;
-
-    private void Start()
+    public class UIHandler : MonoBehaviour
     {
-        GameManager.Instance.onPlayerChanged += OnPlayerChanged;
-        GameManager.Instance.onWinner += OnWinner;
-    }
+        [SerializeField] private Text _currentPlayerText;
+        [SerializeField] private GameObject _winnerPanel;
+        [SerializeField] private Text _winnerText;
+        [SerializeField] private Button _backToMenuButton;
+        [SerializeField] private Button _reloadButton;
 
-    public void OnPlayerChanged(Player player)
-    {
-        currentPlayerText.text = player.playerName;
-    }
 
-    public void OnWinner(Player player)
-    {
-        winnerPanel.SetActive(true);
-        winnerText.text = player.name + " WON";
-    }
+        private void Awake()
+        {
+            _backToMenuButton.onClick.AddListener(BackToMenu);
+            _reloadButton.onClick.AddListener(ReloadLevel);
 
-    public void ReloadLevel()
-    {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-    }
+            GameManager.Instance.PlayerChanged += OnPlayerChanged;
+            GameManager.Instance.PlayerWon += OnPlayerWon;
+        }
 
-    public void BackToMenu()
-    {
-        SceneManager.LoadScene(0);
+        private void BackToMenu()
+        {
+            SceneManager.LoadScene(0);
+        }
+
+        private void ReloadLevel()
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        }
+
+        private void OnPlayerChanged(Player player)
+        {
+            _currentPlayerText.text = player.ToString();
+        }
+
+        private void OnPlayerWon(Player player)
+        {
+            _winnerPanel.SetActive(true);
+            _winnerText.text = player.name + " WON";
+        }
     }
 }

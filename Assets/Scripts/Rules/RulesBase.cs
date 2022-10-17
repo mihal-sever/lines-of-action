@@ -1,48 +1,54 @@
 ﻿using UnityEngine;
 
-public abstract class RulesBase
+namespace Sever.BoardGames
 {
-    internal Cell[,] cells;
-    internal int boardSize;
-    
-    public abstract bool CanMove(Cell fromCell, Cell toCell);
-    public abstract bool IsWin(Player player);
-    public abstract bool CanCaptureChecker(Cell cell);
+    public abstract class RulesBase
+    {
+        internal Cell[,] cells;
+        internal int boardSize;
 
-    public virtual void Initialize(Board board)
-    {
-        cells = board.Cells;
-        boardSize = board.Size;
-    }
-    
-    internal bool CellOccupied(Cell cell)
-    {
-        return CellOccupiedBy(cell, GameManager.Instance.currentPlayer) ||
-                CellOccupiedBy(cell, GameManager.Instance.currentEnemy);
-    }
+        public abstract bool CanMove(Cell fromCell, Cell toCell);
+        public abstract bool IsWin(Player player);
+        public abstract bool CanCaptureChecker(Cell cell);
 
-    internal bool CellOccupiedBy(Cell cell, Player player)
-    {
-        foreach (Checker checker in player.checkers)
+        public virtual void Initialize(Board board)
         {
-            if (checker.GetCell() == cell)
-                return true;
+            cells = board.Cells;
+            boardSize = board.Size;
         }
-        return false;
-    }
 
-    internal Checker GetCheckerOnCell(Cell cell)
-    {
-        foreach (Checker checker in GameManager.Instance.currentEnemy.checkers)
+        internal bool CellOccupied(Cell cell)
         {
-            if (checker.GetCell() == cell)
-                return checker;
+            return CellOccupiedBy(cell, GameManager.Instance.CurrentPlayer) ||
+                   CellOccupiedBy(cell, GameManager.Instance.CurrentEnemy);
         }
-        foreach (Checker checker in GameManager.Instance.currentPlayer.checkers)
+
+        internal bool CellOccupiedBy(Cell cell, Player player)
         {
-            if (checker.GetCell() == cell)
-                return checker;
+            foreach (Checker checker in player.Checkers)
+            {
+                if (checker.Cell == cell)
+                    return true;
+            }
+
+            return false;
         }
-        throw new UnityException("Cell not found.");
+
+        internal Checker GetCheckerOnCell(Cell cell)
+        {
+            foreach (Checker checker in GameManager.Instance.CurrentEnemy.Checkers)
+            {
+                if (checker.Cell == cell)
+                    return checker;
+            }
+
+            foreach (Checker checker in GameManager.Instance.CurrentPlayer.Checkers)
+            {
+                if (checker.Cell == cell)
+                    return checker;
+            }
+
+            throw new UnityException("Cell not found.");
+        }
     }
 }

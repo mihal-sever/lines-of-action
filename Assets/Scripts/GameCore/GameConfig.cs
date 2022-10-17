@@ -1,7 +1,10 @@
-﻿public static class GameConfig
+﻿namespace Sever.BoardGames
 {
-    public static RulesBase rules = new LinesOfActionRules();
-    public static OpeningPosition openingPosition = new LinesOfActionOpeningPosition();
-    public static int boardSize = 8;
-    public static bool soundOn = true;
+    public static class GameConfig
+    {
+        public static RulesBase rules = new LinesOfActionRules();
+        public static OpeningPosition openingPosition = new LinesOfActionOpeningPosition();
+        public static int boardSize = 8;
+        public static bool soundOn = true;
+    }
 }
