@@ -40,7 +40,6 @@ namespace Sever.BoardGames
 
         private void Start()
         {
-            _board.CreateBoard(_boardSize);
             CurrentPlayer.SpawnCheckers(_openingPosition, _board);
             CurrentEnemy.SpawnCheckers(_openingPosition, _board);
             _rules.Initialize(_board);
@@ -128,6 +127,7 @@ namespace Sever.BoardGames
         {
             CurrentPlayer = _whitePlayer;
             CurrentEnemy = _blackPlayer;
+            PlayerChanged?.Invoke(CurrentPlayer);
             
             _soundsOn = GameConfig.soundOn;
             _boardSize = GameConfig.boardSize;

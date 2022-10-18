@@ -24,8 +24,8 @@ namespace Sever.BoardGames
             if (CellOccupied(toCell))
                 return false;
 
-            Vector2Int from = fromCell.position;
-            Vector2Int to = toCell.position;
+            Vector2Int from = fromCell.Position;
+            Vector2Int to = toCell.Position;
 
             if (IsShortStep(from, to))
             {

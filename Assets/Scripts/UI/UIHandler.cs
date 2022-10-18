@@ -40,7 +40,7 @@ namespace Sever.BoardGames.UI
         private void OnPlayerWon(Player player)
         {
             _winnerPanel.SetActive(true);
-            _winnerText.text = player.name + " WON";
+            _winnerText.text = $"{player} WON";
         }
     }
 }

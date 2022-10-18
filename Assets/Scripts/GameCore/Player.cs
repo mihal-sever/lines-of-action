@@ -30,8 +30,7 @@ namespace Sever.BoardGames
 
         private void CreateChecker(Cell cell)
         {
-            GameObject instance = Instantiate(_checkerPrefab, transform);
-            Checker checker = instance.GetComponent<Checker>();
+            var checker = Instantiate(_checkerPrefab, cell.transform).GetComponent<Checker>();
             checker.Move(cell);
             Checkers.Add(checker);
             checker.name = "checker " + Checkers.Count;
@@ -50,7 +49,11 @@ namespace Sever.BoardGames
 
         public override string ToString()
         {
-            return Type.ToString();
+            return Type switch
+            {
+                PlayerType.White => "GREEN",
+                PlayerType.Black => "PINK"
+            };
         }
     }
 }

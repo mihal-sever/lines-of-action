@@ -7,8 +7,8 @@ namespace Sever.BoardGames
     {
         public override bool CanMove(Cell fromCell, Cell toCell)
         {
-            Vector2Int from = fromCell.position;
-            Vector2Int to = toCell.position;
+            Vector2Int from = fromCell.Position;
+            Vector2Int to = toCell.Position;
 
             if (CanMoveStraight(from, to) || CanMoveDiagonally(from, to))
                 return true;
